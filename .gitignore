@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Secrets
+.env
+
+# OS and editors
+.DS_Store
+.idea/
+.vscode/
+
+# Downloaded data, model weights and run artifacts never go into git (CLAUDE.md rule 2)
+frontdesk-slm/data/
+frontdesk-slm/checkpoints/
+frontdesk-slm/outputs/
+wandb/
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
