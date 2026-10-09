@@ -16,12 +16,22 @@ venv/
 .idea/
 .vscode/
 
-# Downloaded data, model weights and run artifacts never go into git (CLAUDE.md rule 2)
-frontdesk-slm/data/
-frontdesk-slm/checkpoints/
-frontdesk-slm/outputs/
+# Datasets, videos, extracted signals and model weights never go into git (CLAUDE.md rules 2 and 3)
+camera-breathing/data/
+camera-breathing/work/
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.h264
+*.h265
+*.hevc
+*.mat
+*.h5
+*.hdf5
+*.npy
+*.npz
 wandb/
-*.gguf
 *.safetensors
 *.bin
 *.pt

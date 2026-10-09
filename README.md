@@ -1,7 +1,7 @@
-# llm-lab
+# ml-lab
 
-Hands-on LLM projects by Zihan Xu. Each project is self-contained, with its own README, plan, code, tests and results.
+Hands-on machine learning projects by Zihan Xu. Each project is self-contained, with its own README, plan, code, tests and results.
 
 | Project | Question | Status |
 |---|---|---|
-| [frontdesk-slm](frontdesk-slm/) | When a ~2B model works as the front desk of a hospital or a law firm, which errors do RAG, SFT and RL each fix? | Planning |
+| [camera-breathing](camera-breathing/) | Does camera-based breathing measurement still work after video compression, and does it hold up better than heart rate? | Planning |
