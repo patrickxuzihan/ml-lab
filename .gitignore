@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Secrets
+.env
+
+# OS and editors
+.DS_Store
+.idea/
+.vscode/
+
+# Datasets, videos, extracted signals and model weights never go into git (CLAUDE.md rules 2 and 3)
+camera-breathing/data/
+camera-breathing/work/
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.h264
+*.h265
+*.hevc
+*.mat
+*.h5
+*.hdf5
+*.npy
+*.npz
+wandb/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
