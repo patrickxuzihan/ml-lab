@@ -1,0 +1,11 @@
+# Phase-1 data check for UBFC-rPPG (real people: no frames are saved, numbers only).
+dataset: ubfc
+# Folder of the Google Drive shortcut to the shared dataset folder, as seen in Colab after
+# mounting Drive. Override with --source. Subject folders are found recursively.
+source: /content/drive/MyDrive/UBFC-rPPG
+save_example_figure: false
+pose:
+  enabled: true
+  model_url: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task
+  sample_fps: 2.0
+  visibility_threshold: 0.5

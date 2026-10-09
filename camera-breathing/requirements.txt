@@ -1,0 +1,9 @@
+# Core dependencies. No torch here: only the optional phase-5 model uses it (requirements-train.txt).
+# Lower bounds only for now; pin exact versions once the first Colab run works (CLAUDE.md rule 8).
+# ffmpeg/ffprobe come from the system (preinstalled on Colab).
+numpy>=1.26
+scipy>=1.11
+h5py>=3.10
+PyYAML>=6.0
+# Tasks API (PoseLandmarker). On Linux it needs libEGL (present on Colab).
+mediapipe>=0.10.14
