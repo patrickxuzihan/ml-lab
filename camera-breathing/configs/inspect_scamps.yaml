@@ -1,0 +1,33 @@
+# Phase-1 data check for SCAMPS (synthetic). Download links from
+# https://github.com/danmcduff/scampsdataset (research use only, R-UDA licence).
+dataset: scamps
+# The 10-video example archive (1.2 GB). The full set is one ~600 GB tar.gz.
+source: https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_videos_example.tar.gz
+# Labels only, as CSV (60 MB): only file names, columns and row counts are recorded.
+labels_csv: https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_waveforms_csv.tar.gz
+# Sizes of all download links are recorded with HTTP HEAD requests (nothing is downloaded).
+head_urls:
+  - https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_videos_example.tar.gz
+  - https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_videos.tar.gz
+  - https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_waveforms.tar.gz
+  - https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_waveforms_csv.tar.gz
+  - https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/ScampsTrainTestSplit.csv
+# The frame rate is not stored in the files. 30 fps is an assumption (600 frames per video,
+# about 20 s each); confirm it against the SCAMPS paper before phase 2.
+fps: 30.0
+frames_key: RawFrames  # full rendered frame (320x240); Xsub is a 240x240 face crop
+waveform_keys:
+  ppg: d_ppg
+  breathing: d_br
+# SCAMPS is synthetic, so one frame with the probe regions drawn on it may be saved as a
+# figure (CLAUDE.md rule 3). The script refuses this option for real-person datasets.
+save_example_figure: true
+pose:
+  enabled: true
+  model_url: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task
+  sample_fps: 2.0
+  visibility_threshold: 0.5
+probe:
+  band_hz: [0.1, 0.7]  # breathing band of GUIDE.md section 4.2
+  max_lag_s: 2.0
+  match_tolerance_bpm: 2.0
