@@ -1,6 +1,6 @@
 # 阶段 2：评测协议定稿
 
-> 状态：**定稿**（2026-11-21），只差一项：SCAMPS 的帧率要等 `scripts/check_scamps_timing.py` 在 Colab 上跑完再最终确认（第 7 节）。
+> 状态：**定稿**（2026-11-21）。最后一项待确认的 SCAMPS 帧率已核实为 30 帧/秒（第 7 节）。
 >
 > 协议的全部参数都在 `configs/protocol.yaml` 里，代码只从那里读。本文件解释每个参数为什么这样定，以及 `notes/01-data.md` 第 4 节列出的数据问题怎么处理。按 CLAUDE.md 规则 6，开跑以后再改协议，就要在这里记录，并重跑受影响的实验。
 
@@ -128,7 +128,7 @@
 | 4.1 UBFC 真值时间戳抖动 | 时间轴 = 帧序号 / 视频平均帧率，不用时间戳。时间戳只用来打标记：有大于 0.5 秒的间隔（01-data 列出的是 subject9、15、23、24、25、33），或有重复时间戳（subject1、4、5、9、10、18、37、46、49）。敏感性分析时去掉这些段再算一遍。标记由代码从数据里算，不手写名单 | `datasets/ubfc.timestamp_flags`，`rate.window_slice` |
 | 4.2 UBFC 帧率不统一 | 帧率阶梯用整数抽帧（因子 1/2/3/6），保留的都是原始帧，不插值。subject25–27 实际是约 23.3、11.7、7.8、3.9 帧/秒；敏感性分析时去掉这三段再算 | `compression.decimate` |
 | 4.3 UBFC 血氧仪心率有无效值 | 心率参考从 PPG 波形算；血氧仪心率小于 30 次/分视为无效，只作交叉检查；PPG 质量用自参考信噪比衡量，阶段 3 据此决定 subject20 | `reference.waveform_rates`、`reference.oximeter_rates` |
-| 4.4 SCAMPS 帧率 | 协议暂按 30 帧/秒（写在配置里）。`scripts/check_scamps_timing.py` 读完标签 csv 里 2800 个文件的 `t_ppg` 列后最终确认；如果不是 30 帧/秒，改配置并在这里记录 | `scripts/check_scamps_timing.py` |
+| 4.4 SCAMPS 帧率 | **已确认是 30 帧/秒**，和配置里的假设一致，不用改。标签 csv 共 2800 个文件，0 个错误，每个都是 600 行；`t_ppg` 从 0 开始严格递增，按中位间隔和按（行数 − 1）/ 时长算出的采样率都是 30 Hz，没有一个文件偏离 30 帧/秒超过 0.01 Hz（`results/20261122_scamps_timing/summary.md`）。run id 里的日期是 20261122，实际运行时间是 2026-11-21，记在 `manifest.json` 的 `started_utc` 里 | `scripts/check_scamps_timing.py` |
 | 4.4 SCAMPS 上的 M2 是渲染规则造出来的 | Q2 的结论要求和 UBFC 方向一致才下 | 分析阶段执行 |
 | 4.5 SCAMPS 有 2 段没检测到肩膀 | 以脸为基准的备用区域，标记 `face_anchored`，敏感性分析时去掉 | `roi.measurement_regions` |
 
@@ -170,7 +170,6 @@
 
 ## 9. 局限和待办
 
-- SCAMPS 帧率等 Colab 确认（第 7 节）。
 - 心率容差 ±5 次/分没有找到公认出处；呼吸参考的 smart fusion 阈值方向只看了检索摘要，没核对 Karlen 2013 原文。
 - 区域是固定框：SCAMPS 有头部转动的视频，脸可能在框里移动。阶段 3 先用没有头部运动的子集（01-literature 第 3.5 节），基线明显偏差时再考虑逐帧跟踪脸部。
 - SCAMPS 没有身份标签：如果同一个虚拟人出现在多段视频里，按段重采样会低估置信区间的宽度。
