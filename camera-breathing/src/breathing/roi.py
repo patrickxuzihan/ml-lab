@@ -120,12 +120,8 @@ def probe_regions(
     med = np.full((N_LANDMARKS, 3), np.nan)
     used = [*FACE, LEFT_SHOULDER, RIGHT_SHOULDER]
     med[used] = np.median(landmarks[both][:, used], axis=0)
-    lx, ly = med[LEFT_SHOULDER, 0] * width, med[LEFT_SHOULDER, 1] * height
-    rx, ry = med[RIGHT_SHOULDER, 0] * width, med[RIGHT_SHOULDER, 1] * height
-    sw = max(abs(lx - rx), 1.0)
-    sy = (ly + ry) / 2
-    cx = (lx + rx) / 2
-    left, right = min(lx, rx), max(lx, rx)
+    sx, sy, sw = _shoulder_geometry(med, width, height)
+    cx = sx[0] + 0.5 * (sx[1] - sx[0])
 
     face = med[list(FACE), :2] * [width, height]
     fx0, fx1 = np.nanmin(face[:, 0]), np.nanmax(face[:, 0])
@@ -141,13 +137,125 @@ def probe_regions(
             height,
             width,
         ),
-        "shoulder": _clip_box(
-            sy - 0.2 * sw, sy + 0.2 * sw, left - 0.15 * sw, right + 0.15 * sw, height, width
-        ),
+        "shoulder": _shoulder_band(med, width, height),
         "chest": _clip_box(
             sy + 0.1 * sw, sy + 0.7 * sw, cx - 0.35 * sw, cx + 0.35 * sw, height, width
         ),
     }, "pose"
+
+
+def _shoulder_geometry(
+    med: np.ndarray, width: int, height: int
+) -> tuple[tuple[float, float], float, float]:
+    """((left x, right x), shoulder-line y, shoulder width) in pixels."""
+    lx, ly = med[LEFT_SHOULDER, 0] * width, med[LEFT_SHOULDER, 1] * height
+    rx, ry = med[RIGHT_SHOULDER, 0] * width, med[RIGHT_SHOULDER, 1] * height
+    return (min(lx, rx), max(lx, rx)), (ly + ry) / 2, max(abs(lx - rx), 1.0)
+
+
+def _shoulder_band(med: np.ndarray, width: int, height: int) -> Box | None:
+    """Band straddling the shoulder line; its size scales with the shoulder width."""
+    (left, right), sy, sw = _shoulder_geometry(med, width, height)
+    return _clip_box(
+        sy - 0.2 * sw, sy + 0.2 * sw, left - 0.15 * sw, right + 0.15 * sw, height, width
+    )
+
+
+# ---------------------------------------------------------------------------------------
+# Measurement regions (phase 2 protocol)
+
+LEFT_EYE_OUTER, RIGHT_EYE_OUTER = 3, 6
+EYES = (1, 2, 3, 4, 5, 6)
+MOUTH = (9, 10)
+
+
+def face_box(med: np.ndarray, width: int, height: int) -> Box | None:
+    """Skin region for the color signal: between the outer eye corners, from just below the
+    eyes down to the mouth (cheeks, nose and upper lip; no hair, eyes or background)."""
+    xs = med[[LEFT_EYE_OUTER, RIGHT_EYE_OUTER], 0] * width
+    eye_y = float(np.mean(med[list(EYES), 1])) * height
+    mouth_y = float(np.mean(med[list(MOUTH), 1])) * height
+    if not np.all(np.isfinite([*xs, eye_y, mouth_y])):
+        return None
+    d = abs(xs[0] - xs[1])
+    box = (
+        int(np.clip(np.floor(eye_y + 0.1 * d), 0, height)),
+        int(np.clip(np.ceil(mouth_y), 0, height)),
+        int(np.clip(np.floor(xs.min()), 0, width)),
+        int(np.clip(np.ceil(xs.max()), 0, width)),
+    )
+    return box if box[1] - box[0] >= 2 and box[3] - box[2] >= 2 else None
+
+
+def face_anchored_band(med: np.ndarray, width: int, height: int) -> Box | None:
+    """Fallback for the shoulder band when the shoulders are not visible: from half a face
+    width below the mouth to the bottom of the frame, 1.5 face widths either side of the
+    face center. Face width is the horizontal span of the face landmarks (ears included)."""
+    face = med[list(FACE), :2] * [width, height]
+    fx0, fx1 = np.nanmin(face[:, 0]), np.nanmax(face[:, 0])
+    mouth_y = float(np.mean(med[list(MOUTH), 1])) * height
+    if not np.all(np.isfinite([fx0, fx1, mouth_y])):
+        return None
+    fw, cx = fx1 - fx0, (fx0 + fx1) / 2
+    return _clip_box(mouth_y + 0.5 * fw, height, cx - 1.5 * fw, cx + 1.5 * fw, height, width)
+
+
+def measurement_regions(
+    landmarks: np.ndarray,
+    width: int,
+    height: int,
+    threshold: float = 0.5,
+    min_shoulder_frac: float = 0.5,
+) -> tuple[dict[str, Box | None], dict]:
+    """Shoulder band (M1) and face skin box (M2, M3) from pose landmarks sampled over a video.
+
+    Both boxes come from the median landmarks, so they are fixed for the whole video. The
+    shoulder band uses the phase-1 definition when both shoulders are visible in at least
+    `min_shoulder_frac` of the sampled frames; otherwise it is anchored to the face. Returns
+    (boxes, info) where info records how each box was found.
+    """
+    n = landmarks.shape[0]
+    shoulders = visible(landmarks, LEFT_SHOULDER, threshold) & visible(
+        landmarks, RIGHT_SHOULDER, threshold
+    )
+    face_seen = visible(landmarks, NOSE, threshold)
+    info = {
+        "n_sampled": int(n),
+        "shoulders_visible_frac": float(shoulders.mean()) if n else 0.0,
+        "face_visible_frac": float(face_seen.mean()) if n else 0.0,
+    }
+    med_face = np.full((N_LANDMARKS, 3), np.nan)
+    if face_seen.any():
+        med_face[list(FACE)] = np.nanmedian(landmarks[face_seen][:, list(FACE)], axis=0)
+    boxes: dict[str, Box | None] = {"shoulder": None, "face": face_box(med_face, width, height)}
+
+    if n and shoulders.mean() >= min_shoulder_frac:
+        med = np.full((N_LANDMARKS, 3), np.nan)
+        pair = [LEFT_SHOULDER, RIGHT_SHOULDER]
+        med[pair] = np.median(landmarks[shoulders][:, pair], axis=0)
+        boxes["shoulder"], info["shoulder_source"] = _shoulder_band(med, width, height), "pose"
+    elif face_seen.any():
+        boxes["shoulder"] = face_anchored_band(med_face, width, height)
+        info["shoulder_source"] = "face_anchored"
+    else:
+        info["shoulder_source"] = "none"
+    info["face_source"] = "pose" if boxes["face"] is not None else "none"
+    return boxes, info
+
+
+def scale_box(box: Box | None, src_hw: tuple[int, int], dst_hw: tuple[int, int]) -> Box | None:
+    """Map a box from a source frame size to a resized frame, keeping its full extent."""
+    if box is None:
+        return None
+    (sh, sw), (dh, dw) = src_hw, dst_hw
+    fy, fx = dh / sh, dw / sw
+    r0, r1, c0, c1 = box
+    return (
+        int(np.clip(np.floor(r0 * fy), 0, dh)),
+        int(np.clip(np.ceil(r1 * fy), 0, dh)),
+        int(np.clip(np.floor(c0 * fx), 0, dw)),
+        int(np.clip(np.ceil(c1 * fx), 0, dw)),
+    )
 
 
 def file_sha256(path: str | Path) -> str:

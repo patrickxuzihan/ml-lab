@@ -48,3 +48,20 @@ def read_ground_truth(path: str | Path) -> dict[str, np.ndarray]:
     if not len(ppg) == len(hr) == len(t):
         raise ValueError(f"{path}: line lengths differ ({len(ppg)}, {len(hr)}, {len(t)})")
     return {"ppg": ppg, "hr": hr, "t": t}
+
+
+def timestamp_flags(t: np.ndarray, gap_s: float = 0.5) -> dict:
+    """Irregularities of the ground-truth timestamps (notes/01-data.md 4.1).
+
+    The protocol's time axis is frame index / video frame rate, not these timestamps; the
+    flags only mark subjects for the sensitivity analysis.
+    """
+    dt = np.diff(np.asarray(t, dtype=np.float64))
+    max_gap = float(dt.max()) if dt.size else 0.0
+    n_duplicates = int(np.sum(dt == 0))
+    return {
+        "max_gap_s": max_gap,
+        "n_duplicates": n_duplicates,
+        "large_gap": max_gap > gap_s,
+        "duplicates": n_duplicates > 0,
+    }

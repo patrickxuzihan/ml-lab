@@ -48,7 +48,8 @@ def git_info(repo_dir: str | Path) -> dict:
             return None
         return out.stdout.strip()
 
-    status = git("status", "--porcelain")
+    # Run outputs written inside the project (results/) do not make the code dirty.
+    status = git("status", "--porcelain", "--", ".", ":(exclude)results")
     return {
         "commit": git("rev-parse", "HEAD"),
         "dirty": bool(status) if status is not None else None,
