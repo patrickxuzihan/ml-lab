@@ -99,6 +99,7 @@ def test_core_modules_do_not_import_torch():
         "breathing.video_io",
         "breathing.pipeline",
         "breathing.baseline",
+        "breathing.sources",
     ]
     code = "import sys\n" + "".join(f"import {m}\n" for m in modules)
     code += "print('torch' in sys.modules)"
