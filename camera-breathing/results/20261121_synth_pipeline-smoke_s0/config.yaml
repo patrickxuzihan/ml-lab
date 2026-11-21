@@ -1,0 +1,153 @@
+experiment:
+  dataset: synth
+  seed: 0
+  n_subjects: 3
+  videos_per_subject: 2
+  video:
+    duration_s: 20.0
+    fps: 30.0
+    height: 120
+    width: 160
+    noise_std: 1.0
+    face_center_frac:
+    - 0.25
+    - 0.5
+    face_radius_frac:
+    - 0.15
+    - 0.12
+    shoulder_half_width_frac: 0.15
+    breathing_bpm:
+    - 8.0
+    - 24.0
+    heart_bpm:
+    - 45.0
+    - 150.0
+    breathing_amplitude_px:
+    - 0.2
+    - 0.5
+    heart_amplitude:
+    - 0.5
+    - 1.5
+    breathing_color_amplitude:
+    - 0.5
+    - 1.0
+  ppg:
+    baseline: 0.1
+    amplitude_depth: 0.1
+    interval_depth: 0.05
+    noise_std: 0.05
+  settings:
+  - source
+  - x264_crf0
+  - x264_crf23
+  - x264_crf38
+  - x265_crf28
+  - x264_br500
+  - x264_br125
+  - x265_br125
+  - x264_br250_d2_s2
+  - raw_d2_s2
+protocol:
+  version: 1
+  regions:
+    pose_sample_fps: 2.0
+    visibility_threshold: 0.5
+    min_shoulder_frac: 0.5
+  measurements:
+    M1:
+      kind: breathing
+      signal: motion
+      region: shoulder
+      band_hz:
+      - 0.1
+      - 0.7
+      window_s: 30.0
+    M2:
+      kind: breathing
+      signal: color
+      region: face
+      band_hz:
+      - 0.1
+      - 0.7
+      window_s: 30.0
+      pos_window_s: null
+    M3:
+      kind: heart
+      signal: color
+      region: face
+      band_hz:
+      - 0.7
+      - 3.0
+      window_s: 10.0
+      pos_window_s: 1.6
+  rate:
+    filter_order: 2
+    min_nfft: 4096
+    max_nyquist_frac: 0.95
+    snr_half_width_bins: 2.0
+  tolerance_bpm:
+    breathing: 2.0
+    heart: 5.0
+  reference:
+    ppg_respiration:
+      resample_hz: 4.0
+      agreement_bpm: 2.0
+      beat_band_hz:
+      - 0.5
+      - 5.0
+      max_heart_bpm: 180.0
+    oximeter_min_valid_bpm: 30.0
+    ubfc_gap_flag_s: 0.5
+  statistics:
+    bootstrap_samples: 2000
+    ci: 0.95
+    seed: 0
+  breakdown:
+    drop_pp: 10.0
+  compression:
+    pix_fmt: yuv420p
+    preset: medium
+    gop_frames: 100000
+    scale_flags: area
+    threads: 1
+    vbv_buffer_s: 1.0
+    ladders:
+      crf:
+        codecs:
+        - libx264
+        - libx265
+        crf:
+        - 0
+        - 18
+        - 23
+        - 28
+        - 33
+        - 38
+        - 43
+      bitrate:
+        codecs:
+        - libx264
+        - libx265
+        kbps:
+        - 2000
+        - 1000
+        - 500
+        - 250
+        - 125
+      allocation:
+        codecs:
+        - libx264
+        - libx265
+        kbps:
+        - 500
+        - 250
+        - 125
+        decimate:
+        - 1
+        - 2
+        - 3
+        - 6
+        scale:
+        - 1
+        - 2
+        - 4
