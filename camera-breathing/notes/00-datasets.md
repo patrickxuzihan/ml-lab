@@ -4,7 +4,7 @@
 
 对所有数据集都适用的做法（CLAUDE.md 规则 2、3）：
 
-- 数据集、视频、帧和从数据集提取的信号都不进 git，只放在 Colab 本地硬盘（处理完就删）和你的 Google Drive 上。
+- 数据集、视频、帧和从数据集提取的信号都不进 git，只放在 Colab 本地硬盘（处理完就删）和我的 Google Drive 上。
 - 真人画面不保存、不进 git、不放进报告。核实脚本对真人数据集只输出数字；保存示例画面的选项只对 SCAMPS 开放，代码里对其他数据集直接报错。
 - 不转发任何数据。
 
@@ -21,11 +21,11 @@
   | `scamps_waveforms_csv.tar.gz` | 只有标签（.csv） | 60 MB |
   | `ScampsTrainTestSplit.csv` | 官方的训练、验证、测试划分 | 未写 |
 
-  链接的前缀都是 `https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/`。云端会话的网络白名单拦了这个域名，所以只能在 Colab 里下载；实际大小由阶段 1 脚本用 HTTP HEAD 请求记录。
-- **许可**：R-UDA v1.0（Research Use of Data Agreement），我读过仓库里的 `LICENSE.txt`。要点：
+  链接的前缀都是 `https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/`。数据只在 Colab 里下载；实际大小由阶段 1 脚本用 HTTP HEAD 请求记录。
+- **许可**：R-UDA v1.0（Research Use of Data Agreement），见 SCAMPS 官方仓库里的 `LICENSE.txt`。要点：
   - 只能用于非商业研究的计算分析；数据和用它得到的成果都不能用于商业产品或服务。
   - 不能因为使用或转发数据收钱。
-  - 转发时要保留原有的署名信息，并让接收方同样受 R-UDA 约束。我们不转发。
+  - 转发时要保留原有的署名信息，并让接收方同样受 R-UDA 约束。我不转发。
   - 「成果」可以包含报告研究所必需的极少量数据，例如论文图里的画面。所以图里可以放一两帧合成画面。
   - 用数据训练出的模型，只要不包含超过极少量的数据，也算「成果」。
   - 官方页面另外说明：这个数据集不是用来评估临床效果的测试集。
@@ -36,14 +36,14 @@
 - **来源**：<https://sites.google.com/view/ybenezeth/ubfcrppg>
 - **获取**：官方页面给出 Google Drive 共享文件夹 `UBFC_DATASET`，不用申请。做法见 GUIDE 第 7 节：添加快捷方式到「我的云端硬盘」，Colab 挂载 Drive 后读取（路径 `/content/drive/MyDrive/UBFC_DATASET`）。
   - 文件夹里有：已解压的 `DATASET_1`、`DATASET_2` 两个文件夹，它们的 zip 压缩包，`Agreement.xlsx`，`readme.txt`，以及作者提供的 `ubfcrppg_data_processor.m` 和 `.py`。
-  - 我们只用 `DATASET_2`（42 段）。`DATASET_1` 的真值是另一种格式，核实脚本记为跳过（`results/20261010_ubfc_inspect/folders.json`）。
-- **条款**：不用签协议。依据是官方页面（检索摘要显示写的是「shared for research purpose」）和共享文件夹里的两个文件，内容由你在 2026-11-21 转述：
-  - `Agreement.xlsx` 不是要我们签的协议，而是**每个受试者的同意情况**，两列分别是「同意在 PPT、网站等处展示画面」和「同意共享数据」：
-    - 不同意或没有填共享数据的受试者：2、6、7、19、21、28、29。这 7 人的数据没有放进共享文件夹，DATASET_2 里正好是剩下的 42 段（`results/20261010_ubfc_inspect/folders.json`）。所以我们用的每一段，受试者都同意了共享数据。
+  - 我只用 `DATASET_2`（42 段）。`DATASET_1` 的真值是另一种格式，核实脚本记为跳过（`results/20261010_ubfc_inspect/folders.json`）。
+- **条款**：不用签协议。依据是官方页面（检索摘要显示写的是「shared for research purpose」）和共享文件夹里的两个文件（我在 2026-11-21 查看）：
+  - `Agreement.xlsx` 不是需要签署的协议，而是**每个受试者的同意情况**，两列分别是「同意在 PPT、网站等处展示画面」和「同意共享数据」：
+    - 不同意或没有填共享数据的受试者：2、6、7、19、21、28、29。这 7 人的数据没有放进共享文件夹，DATASET_2 里正好是剩下的 42 段（`results/20261010_ubfc_inspect/folders.json`）。所以我用的每一段，受试者都同意了共享数据。
     - 不同意展示画面的：21（不在共享数据里）和 **27**（在共享数据里）。
   - `readme.txt` 写明：**subject 21 和 27 的脸部画面不得出现在任何论文、演示或报告里。**
-  - 我们的做法：CLAUDE.md 规则 3 本来就禁止发布任何真人画面，所以这条对我们没有额外影响；但以后写报告、做演示时也要记得，subject27 的画面绝对不能用。
-  - `readme.txt` 还确认了真值格式。DATASET_2 的 `ground_truth.txt`：第 1 行 PPG 信号，第 2 行心率，第 3 行时间（秒，科学计数法），和我们的读取器一致。DATASET_1 的 `gtdump.xmp` 是四列：时间（毫秒）、心率、血氧、PPG。
+  - 我的做法：项目规则本来就禁止发布任何真人画面，所以这条对本项目没有额外影响；但以后写报告、做演示时也要记得，subject27 的画面绝对不能用。
+  - `readme.txt` 还确认了真值格式。DATASET_2 的 `ground_truth.txt`：第 1 行 PPG 信号，第 2 行心率，第 3 行时间（秒，科学计数法），和本项目的读取器一致。DATASET_1 的 `gtdump.xmp` 是四列：时间（毫秒）、心率、血氧、PPG。
   - `readme.txt` 还说明：作者评估心率时**没有用血氧仪给的心率值**，而是用接触式 PPG 信号算出的心率作参考。这和 `notes/01-data.md` 第 4.3 节的建议一致。
   - 联系人：yannick.benezeth@u-bourgogne.fr。
 - **引用**：Bobbia et al., *Unsupervised skin tissue segmentation for remote photoplethysmography*, Pattern Recognition Letters 124:82–90, 2019, doi:10.1016/j.patrec.2017.10.017。

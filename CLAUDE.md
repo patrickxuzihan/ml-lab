@@ -42,3 +42,5 @@ Current project: `camera-breathing/`, a study of how video compression affects c
 ## Language
 
 Code, comments, commit messages and READMEs are in English. Notes under `notes/` and the `学习要点` sections are in Chinese.
+
+Write files in the repository (notes, READMEs, write-ups of results) in the owner's voice: "我" or "I" is the owner. Don't address the owner as "你" in them, and don't mention Claude's sessions or tools (network allowlists, uploads, scratch directories). `GUIDE.md` keeps its form as a guide addressed to the owner and to Claude. PR descriptions and chat replies may address the owner directly.
