@@ -126,7 +126,7 @@
 
 ### 4.4 统一评测协议（所有实验共用，开跑后不能改）
 
-> 阶段 2 已定稿（2026-11-21）。全部参数在 `configs/protocol.yaml`，每一项的理由和数据问题的处理在 `notes/02-protocol.md`。SCAMPS 的帧率暂按 30 帧/秒，等 `scripts/check_scamps_timing.py` 在 Colab 上确认。
+> 阶段 2 已定稿（2026-11-21）。全部参数在 `configs/protocol.yaml`，每一项的理由和数据问题的处理在 `notes/02-protocol.md`。SCAMPS 的帧率已核实为 30 帧/秒（`results/20261122_scamps_timing/`）。
 
 - **固定的内容**：区域定位方法、信号提取方法、滤波频段、窗口长度、频率估计方法、压缩参数、指标代码。这些都写在代码和配置里；改了就要重跑受影响的实验，并在 notes 里记录。
 - **区域**：
