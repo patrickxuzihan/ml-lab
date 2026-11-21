@@ -65,3 +65,22 @@ def test_environment_snapshot_records_versions(tmp_path):
     assert snapshot["packages"]["numpy"] == np.__version__
     assert snapshot["ffmpeg"].startswith("ffmpeg version")
     assert snapshot["hardware"]["cpu_count"] >= 1
+
+
+def test_git_dirty_ignores_results(tmp_path):
+    import subprocess
+
+    from breathing.runinfo import git_info
+
+    def git(*args):
+        subprocess.run(["git", *args], cwd=tmp_path, check=True, capture_output=True)
+
+    git("init", "-q")
+    (tmp_path / "code.py").write_text("x = 1\n")
+    git("add", "code.py")
+    git("-c", "user.email=t@example.com", "-c", "user.name=t", "commit", "-q", "-m", "init")
+    (tmp_path / "results" / "run").mkdir(parents=True)
+    (tmp_path / "results" / "run" / "items.jsonl").write_text("{}\n")
+    assert git_info(tmp_path)["dirty"] is False
+    (tmp_path / "code.py").write_text("x = 2\n")
+    assert git_info(tmp_path)["dirty"] is True
