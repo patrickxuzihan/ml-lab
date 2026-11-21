@@ -1,0 +1,266 @@
+{
+  "heart": {
+    "windows": 248,
+    "failed": 16,
+    "failed_by_video": {
+      "subject41": 5,
+      "subject14": 3,
+      "subject48": 3,
+      "subject22": 1,
+      "subject27": 1,
+      "subject32": 1,
+      "subject33": 1,
+      "subject4": 1
+    },
+    "harmonics_among_failed": {
+      "second harmonic (x2)": 0,
+      "half (x0.5)": 4
+    },
+    "by_reference_rate": {
+      "below 60 bpm": {
+        "windows": 6,
+        "failed": 0
+      },
+      "60 bpm and above": {
+        "windows": 242,
+        "failed": 16
+      }
+    },
+    "ppg_snr_db_median": {
+      "failed": 8.859938763304555,
+      "succeeded": 12.557344612198218
+    },
+    "failed_windows": [
+      {
+        "video": "subject14",
+        "window": 2,
+        "ref_bpm": 73.15675317104873,
+        "est_bpm": 84.19342739050651,
+        "failed": true,
+        "ppg_snr_db": 10.934558097862837,
+        "oximeter_bpm": 73.0
+      },
+      {
+        "video": "subject14",
+        "window": 4,
+        "ref_bpm": 64.78638630666939,
+        "est_bpm": 85.43691137113275,
+        "failed": true,
+        "ppg_snr_db": 1.3510752561503068,
+        "oximeter_bpm": 75.0
+      },
+      {
+        "video": "subject14",
+        "window": 5,
+        "ref_bpm": 73.54063728181511,
+        "est_bpm": 61.64733976607703,
+        "failed": true,
+        "ppg_snr_db": 2.620933502555138,
+        "oximeter_bpm": 77.0
+      },
+      {
+        "video": "subject22",
+        "window": 4,
+        "ref_bpm": 104.81871464583595,
+        "est_bpm": 50.76291366914007,
+        "failed": true,
+        "ppg_snr_db": 9.823822836526329,
+        "oximeter_bpm": 109.5
+      },
+      {
+        "video": "subject27",
+        "window": 0,
+        "ref_bpm": 72.80602347039996,
+        "est_bpm": 66.64669568638342,
+        "failed": true,
+        "ppg_snr_db": 3.100662148967148,
+        "oximeter_bpm": 83.0
+      },
+      {
+        "video": "subject32",
+        "window": 0,
+        "ref_bpm": 92.73117246709819,
+        "est_bpm": 47.9633994538633,
+        "failed": true,
+        "ppg_snr_db": 8.461391203891644,
+        "oximeter_bpm": 105.0
+      },
+      {
+        "video": "subject33",
+        "window": 1,
+        "ref_bpm": 109.46867668362528,
+        "est_bpm": 122.4027724110016,
+        "failed": true,
+        "ppg_snr_db": 0.20184083570968248,
+        "oximeter_bpm": 117.0
+      },
+      {
+        "video": "subject4",
+        "window": 3,
+        "ref_bpm": 92.77889723301683,
+        "est_bpm": 109.98692857513932,
+        "failed": true,
+        "ppg_snr_db": -2.4199515857339167,
+        "oximeter_bpm": 116.0
+      },
+      {
+        "video": "subject41",
+        "window": 0,
+        "ref_bpm": 102.37575923232035,
+        "est_bpm": 48.885260045052306,
+        "failed": true,
+        "ppg_snr_db": 5.530186661603949,
+        "oximeter_bpm": 97.0
+      },
+      {
+        "video": "subject41",
+        "window": 2,
+        "ref_bpm": 102.24501235762884,
+        "est_bpm": 69.36184309964038,
+        "failed": true,
+        "ppg_snr_db": 9.81483398530231,
+        "oximeter_bpm": 100.0
+      },
+      {
+        "video": "subject41",
+        "window": 3,
+        "ref_bpm": 105.55346207687766,
+        "est_bpm": 47.5577739144498,
+        "failed": true,
+        "ppg_snr_db": 19.874852828927857,
+        "oximeter_bpm": 107.0
+      },
+      {
+        "video": "subject41",
+        "window": 4,
+        "ref_bpm": 99.61800450783048,
+        "est_bpm": 66.69002737939807,
+        "failed": true,
+        "ppg_snr_db": 9.711419314777295,
+        "oximeter_bpm": 101.0
+      },
+      {
+        "video": "subject41",
+        "window": 5,
+        "ref_bpm": 96.52830054882985,
+        "est_bpm": 42.44190017283763,
+        "failed": true,
+        "ppg_snr_db": 12.312847712490349,
+        "oximeter_bpm": 101.0
+      },
+      {
+        "video": "subject48",
+        "window": 1,
+        "ref_bpm": 86.28656509095579,
+        "est_bpm": 32.59258599637618,
+        "failed": true,
+        "ppg_snr_db": 7.338824970945863,
+        "oximeter_bpm": 87.0
+      },
+      {
+        "video": "subject48",
+        "window": 2,
+        "ref_bpm": 86.32052265428236,
+        "est_bpm": 48.52153163462223,
+        "failed": true,
+        "ppg_snr_db": 9.258486322717467,
+        "oximeter_bpm": 88.0
+      },
+      {
+        "video": "subject48",
+        "window": 3,
+        "ref_bpm": 86.23953496478322,
+        "est_bpm": 56.36984126968193,
+        "failed": true,
+        "ppg_snr_db": 10.980906175424185,
+        "oximeter_bpm": 88.0
+      }
+    ]
+  },
+  "breathing": {
+    "variant": "wide_reference",
+    "windows": 33,
+    "pairs": {
+      "M1 vs M2": {
+        "median_abs_diff_bpm": 14.185281855341783,
+        "within_tolerance": 4,
+        "n": 33
+      },
+      "M1 vs BW": {
+        "median_abs_diff_bpm": 13.643372787408621,
+        "within_tolerance": 7,
+        "n": 33
+      },
+      "M1 vs AM": {
+        "median_abs_diff_bpm": 13.754833262036794,
+        "within_tolerance": 10,
+        "n": 33
+      },
+      "M1 vs FM": {
+        "median_abs_diff_bpm": 12.486009654782896,
+        "within_tolerance": 6,
+        "n": 33
+      },
+      "M2 vs BW": {
+        "median_abs_diff_bpm": 2.724486286142879,
+        "within_tolerance": 13,
+        "n": 33
+      },
+      "M2 vs AM": {
+        "median_abs_diff_bpm": 3.743008549029068,
+        "within_tolerance": 14,
+        "n": 33
+      },
+      "M2 vs FM": {
+        "median_abs_diff_bpm": 3.7875930268129165,
+        "within_tolerance": 11,
+        "n": 33
+      }
+    },
+    "by_reference_range": {
+      "0-12 bpm": {
+        "windows": 25,
+        "M1 within": 4,
+        "M2 within": 12
+      },
+      "12-15 bpm": {
+        "windows": 3,
+        "M1 within": 1,
+        "M2 within": 0
+      },
+      "15-60 bpm": {
+        "windows": 5,
+        "M1 within": 3,
+        "M2 within": 0
+      }
+    },
+    "estimate_quantiles_bpm": {
+      "M1": [
+        6.8969193861862115,
+        18.71013355434061,
+        23.96725265013883,
+        26.63161071201856,
+        30.18840857365031
+      ],
+      "M2": [
+        6.378462728023886,
+        7.7392681844699105,
+        8.867158424288233,
+        10.562014522064628,
+        18.480215316601164
+      ],
+      "ref": [
+        6.2928143228276205,
+        8.531197995349437,
+        9.928709099740779,
+        11.929153233888194,
+        24.91593997189105
+      ]
+    }
+  },
+  "videos": {
+    "n": 42,
+    "first": "subject1",
+    "last": "subject9"
+  }
+}

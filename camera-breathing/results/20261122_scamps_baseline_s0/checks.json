@@ -1,0 +1,338 @@
+{
+  "heart": {
+    "windows": 198,
+    "failed": 31,
+    "failed_by_video": {
+      "P000008": 2,
+      "P000020": 2,
+      "P000022": 2,
+      "P000029": 2,
+      "P000050": 2,
+      "P000059": 2,
+      "P000069": 2,
+      "P000076": 2,
+      "P000084": 2,
+      "P000002": 1,
+      "P000006": 1,
+      "P000011": 1,
+      "P000019": 1,
+      "P000023": 1,
+      "P000038": 1,
+      "P000040": 1,
+      "P000043": 1,
+      "P000051": 1,
+      "P000070": 1,
+      "P000072": 1,
+      "P000080": 1,
+      "P000100": 1
+    },
+    "harmonics_among_failed": {
+      "second harmonic (x2)": 14,
+      "half (x0.5)": 2
+    },
+    "by_reference_rate": {
+      "below 60 bpm": {
+        "windows": 33,
+        "failed": 17
+      },
+      "60 bpm and above": {
+        "windows": 165,
+        "failed": 14
+      }
+    },
+    "ppg_snr_db_median": {
+      "failed": null,
+      "succeeded": null
+    },
+    "failed_windows": [
+      {
+        "video": "P000002",
+        "window": 0,
+        "ref_bpm": 54.119668106296906,
+        "est_bpm": 107.56017160889839,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000006",
+        "window": 1,
+        "ref_bpm": 49.6526632282585,
+        "est_bpm": 99.89969697874133,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000008",
+        "window": 0,
+        "ref_bpm": 96.4118564902708,
+        "est_bpm": 104.17666888251195,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000008",
+        "window": 1,
+        "ref_bpm": 97.21652858212416,
+        "est_bpm": 79.6205382964489,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000011",
+        "window": 1,
+        "ref_bpm": 54.15222404715301,
+        "est_bpm": 108.0613148156837,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000019",
+        "window": 0,
+        "ref_bpm": 119.04212013164575,
+        "est_bpm": 105.3978013177733,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000020",
+        "window": 0,
+        "ref_bpm": 87.25664546730381,
+        "est_bpm": 56.774224168125315,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000020",
+        "window": 1,
+        "ref_bpm": 88.32035461982355,
+        "est_bpm": 45.50812455843415,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000022",
+        "window": 0,
+        "ref_bpm": 47.57102102947298,
+        "est_bpm": 95.6984369918488,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000022",
+        "window": 1,
+        "ref_bpm": 46.51118262693707,
+        "est_bpm": 92.49121296759974,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000023",
+        "window": 1,
+        "ref_bpm": 140.80831046426525,
+        "est_bpm": 104.89913643875741,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000029",
+        "window": 0,
+        "ref_bpm": 47.020383780996234,
+        "est_bpm": 94.82153040280716,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000029",
+        "window": 1,
+        "ref_bpm": 46.90765355158115,
+        "est_bpm": 116.24257379730999,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000038",
+        "window": 1,
+        "ref_bpm": 61.60549340442073,
+        "est_bpm": 122.18136710611698,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000040",
+        "window": 0,
+        "ref_bpm": 112.65392051974334,
+        "est_bpm": 60.051502482835154,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000043",
+        "window": 0,
+        "ref_bpm": 78.24531945863265,
+        "est_bpm": 106.75558143200514,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000050",
+        "window": 0,
+        "ref_bpm": 43.17841392604243,
+        "est_bpm": 100.11786005258277,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000050",
+        "window": 1,
+        "ref_bpm": 44.590999587936025,
+        "est_bpm": 88.95138918467366,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000051",
+        "window": 0,
+        "ref_bpm": 117.20186920570428,
+        "est_bpm": 133.8123268172399,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000059",
+        "window": 0,
+        "ref_bpm": 86.40969790273743,
+        "est_bpm": 129.6080753854985,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000059",
+        "window": 1,
+        "ref_bpm": 87.96111420554682,
+        "est_bpm": 106.69265222159656,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000069",
+        "window": 0,
+        "ref_bpm": 51.60289732786779,
+        "est_bpm": 102.9195892283787,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000069",
+        "window": 1,
+        "ref_bpm": 50.74042965005641,
+        "est_bpm": 101.38035445173726,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000070",
+        "window": 1,
+        "ref_bpm": 48.36269433060663,
+        "est_bpm": 96.84928594648338,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000072",
+        "window": 0,
+        "ref_bpm": 48.57945096406932,
+        "est_bpm": 97.3131569307466,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000076",
+        "window": 0,
+        "ref_bpm": 69.83419313262094,
+        "est_bpm": 62.4449270155816,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000076",
+        "window": 1,
+        "ref_bpm": 68.85721262838126,
+        "est_bpm": 84.72232392821604,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000080",
+        "window": 1,
+        "ref_bpm": 58.52822317417896,
+        "est_bpm": 117.29908962825374,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000084",
+        "window": 0,
+        "ref_bpm": 47.07018690949956,
+        "est_bpm": 69.48491736190627,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000084",
+        "window": 1,
+        "ref_bpm": 47.48375447573781,
+        "est_bpm": 105.91584076655747,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      },
+      {
+        "video": "P000100",
+        "window": 1,
+        "ref_bpm": 58.89861411625568,
+        "est_bpm": 118.01188644570921,
+        "failed": true,
+        "ppg_snr_db": null,
+        "oximeter_bpm": null
+      }
+    ]
+  },
+  "videos": {
+    "n": 100,
+    "first": "P000001",
+    "last": "P000100"
+  },
+  "same_videos_as_other_run": {
+    "shared": 10,
+    "identical": 10
+  }
+}
