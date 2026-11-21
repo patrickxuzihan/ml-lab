@@ -1,0 +1,7 @@
+# Phase-4 bitrate allocation (Q3) on UBFC-rPPG: video-call settings at fixed bitrates with
+# frame decimation and downscaling, plus the same decimation and downscaling without
+# compression (raw), from configs/protocol.yaml. Dataset settings come from dataset_config.
+dataset_config: baseline_ubfc.yaml
+ladders: [allocation, raw]
+relocate: []
+n_videos: null  # all subjects; lower it to run the first n subjects only

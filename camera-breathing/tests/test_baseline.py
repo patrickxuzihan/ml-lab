@@ -276,7 +276,7 @@ def test_colab_notebook_is_a_thin_launcher():
         assert cell.get("outputs") == [] and cell.get("execution_count") is None
     text = "\n".join("".join(c["source"]) for c in code)
     paths = re.findall(r"(?:scripts|configs)/[\w.-]+\.(?:py|yaml)", text)
-    assert "scripts/baseline.py" in paths
+    assert "scripts/compression_experiment.py" in paths  # the current phase
     for path in paths:
         assert (PROJECT_DIR / path).exists(), path
     assert 'userdata.get("GH_TOKEN")' in text  # the token comes from Colab secrets

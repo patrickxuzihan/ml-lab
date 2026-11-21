@@ -1,0 +1,10 @@
+# Phase-4 compression ladders (Q1, Q2) on SCAMPS: the uncompressed source plus the CRF and
+# bitrate ladders of configs/protocol.yaml. Dataset location, selection rule and pose model
+# come from dataset_config (the phase-3 config).
+dataset_config: baseline_scamps.yaml
+ladders: [crf, bitrate]
+# Measured a second time with regions found on the compressed video (sensitivity analysis,
+# GUIDE.md 4.4): the two lowest rungs of each video-call ladder.
+relocate: [x264_br250, x264_br125, x265_br250, x265_br125]
+# The first n_videos head-still videos of the archive: the same 100 videos as phase 3.
+n_videos: 100

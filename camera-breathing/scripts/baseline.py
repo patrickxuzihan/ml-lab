@@ -20,24 +20,21 @@ from __future__ import annotations
 
 import argparse
 import csv
-import shutil
 import sys
-import tarfile
 import time
 import traceback
 from collections.abc import Callable
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 
 import yaml
 
-from breathing import baseline, datacheck, pipeline, roi
+from breathing import baseline, pipeline, sources
 from breathing.compression import SOURCE
-from breathing.datasets import scamps, ubfc
+from breathing.datasets import ubfc
 from breathing.runinfo import RunDir, environment_snapshot
-from breathing.video_io import iter_frames, probe
+from breathing.sources import make_pose
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
-STREAM_ATTEMPTS = 3
 WINDOW_COLUMNS = ["variant", "video", "subject", "measure", "window", "t0", "t1", "ref_bpm"]
 WINDOW_COLUMNS += ["est_bpm", "error_bpm", "snr_db", "excluded"]
 
@@ -66,44 +63,36 @@ def load_config(args: argparse.Namespace) -> dict:
     return config
 
 
-def make_pose(config: dict, work_dir: Path):
-    model = roi.ensure_model(config["pose_model_url"], work_dir / "models")
-    info = {"pose_model": {"file": model.name, "sha256": roi.file_sha256(model)}}
-    return roi.PoseEstimator(model), info
-
-
 def measure_video(
-    frames: Callable,
-    fps: float,
-    size_hw: tuple[int, int],
+    video: sources.Video,
     pose,
     protocol: dict,
-    references: Callable,
     work_dir: Path,
     wide_max_std_bpm: float | None = None,
 ) -> dict:
-    """Regions from pose on the source, references, then M1-M3 (main and extra windows).
-
-    frames() yields the RGB frames (called twice: pose sampling, then the signals);
-    references(windows, n_frames) returns (refs, details) for those windows.
-    """
-    reg = protocol["regions"]
-    height, width = size_hw
-    landmarks, n_frames, _ = datacheck.sample_pose(frames(), fps, reg["pose_sample_fps"], pose)
-    boxes, region_info = roi.measurement_regions(
-        landmarks, width, height, reg["visibility_threshold"], reg["min_shoulder_frac"]
-    )
-    duration = n_frames / fps
+    """Regions from pose on the source, references, then M1-M3 (main and extra windows)."""
+    boxes, region_info, n_frames = sources.locate(video, pose, protocol)
+    duration = n_frames / video.fps
     windows = pipeline.analysis_windows(duration, protocol)
-    refs, details = references(windows, n_frames)
+    refs, details = video.references(windows, n_frames)
     whole = baseline.whole_windows(duration, protocol)
-    whole_refs, whole_details = references(whole, n_frames)
+    whole_refs, whole_details = video.references(whole, n_frames)
     variants = {baseline.WHOLE_VIDEO: (whole, whole_refs)}
     if wide_max_std_bpm is not None:
         wide = baseline.wide_references(refs, details, protocol, wide_max_std_bpm)
         variants[baseline.WIDE_REFERENCE] = (windows, wide)
     record = pipeline.process_version(
-        SOURCE, frames, fps, size_hw, n_frames, boxes, windows, refs, protocol, work_dir, variants
+        SOURCE,
+        video.frames,
+        video.fps,
+        video.size_hw,
+        n_frames,
+        boxes,
+        windows,
+        refs,
+        protocol,
+        work_dir,
+        variants,
     )
     record["regions"] = {"boxes": boxes, **region_info}
     record["reference"] = details
@@ -112,88 +101,32 @@ def measure_video(
 
 
 def measure_ubfc(subject: ubfc.Subject, config: dict, protocol: dict, pose, work_dir: Path):
-    stage = work_dir / "stage"
-    stage.mkdir(parents=True, exist_ok=True)
-    local = stage / ubfc.VIDEO_NAME
     started = time.perf_counter()
-    shutil.copyfile(subject.video, local)  # from the Drive shortcut to local disk
-    copied = time.perf_counter()
-    try:
-        info = probe(local)
-        gt = ubfc.read_ground_truth(subject.ground_truth)
-
-        def frames():
-            return iter_frames(local, info.width, info.height)
-
-        def references(windows, n_frames):
-            # The protocol's time axis is frame index / mean frame rate, and the ground truth
-            # has one sample per frame (checked in phase 1); refuse anything else.
-            if len(gt["ppg"]) != n_frames:
-                raise ValueError(f"{len(gt['ppg'])} ground-truth samples for {n_frames} frames")
-            return baseline.ubfc_references(gt["ppg"], gt["hr"], info.fps, windows, protocol)
-
-        record = measure_video(
-            frames,
-            info.fps,
-            (info.height, info.width),
-            pose,
-            protocol,
-            references,
-            work_dir / "versions",
-            config["sensitivity"]["wide_reference_max_std_bpm"],
-        )
-    finally:
-        local.unlink(missing_ok=True)
+    with sources.ubfc_video(subject, protocol, work_dir / "stage") as video:
+        wide = config["sensitivity"]["wide_reference_max_std_bpm"]
+        record = measure_video(video, pose, protocol, work_dir / "versions", wide)
     record.update(
         video=subject.id,
         subject=subject.id,
-        video_info=info.to_dict(),
-        flags=ubfc.timestamp_flags(gt["t"], protocol["reference"]["ubfc_gap_flag_s"]),
-        timing_s={"copy": copied - started, "total": time.perf_counter() - started},
+        video_info=video.info["video_info"],
+        flags=video.info["flags"],
+        timing_s={"copy": video.info["timing_s"]["copy"], "total": time.perf_counter() - started},
     )
     return record
 
 
 def measure_scamps(name: str, local: Path, config: dict, protocol: dict, pose, work_dir: Path):
     started = time.perf_counter()
-    sel = config["selection"]
-    head_keys = sel["head_pose_keys"]
-    waves = scamps.read_waveforms(local, head_keys + sel["action_unit_keys"])
-    missing = [k for k in head_keys if k not in waves]
-    if missing:
-        raise ValueError(f"head-pose variables missing: {missing}")
-    head = baseline.value_ranges({k: waves[k] for k in head_keys})
-    units = baseline.value_ranges({k: v for k, v in waves.items() if k not in head_keys})
-    base = {
-        "video": name,
-        "subject": PurePosixPath(name).stem,  # no identity labels: one cluster per video
-        "head_pose_range": head,
-        "action_units_max_range": max(units.values()) if units else None,
-    }
-    if not baseline.head_is_still(head, sel["max_head_pose_range"]):
-        print(f"  skipped: head pose varies by up to {max(head.values()):.4g}", flush=True)
-        return {**base, "status": "skipped", "reason": "head_motion"}
-
-    video = scamps.read_video(local, config["frames_key"], config["waveform_keys"])
-    fps = float(config["fps"])
-    frames = video.frames
-    known = {"breathing": video.waveforms["breathing"], "heart": video.waveforms["ppg"]}
-
-    def references(windows, n_frames):
-        if len(known["breathing"]) != n_frames:
-            raise ValueError(f"{len(known['breathing'])} label samples for {n_frames} frames")
-        return pipeline.waveform_references(known, fps, windows, protocol), {}
-
-    record = measure_video(
-        lambda: iter(frames),
-        fps,
-        frames.shape[1:3],
-        pose,
-        protocol,
-        references,
-        work_dir / "versions",
+    screen, still = sources.scamps_screen(name, local, config)
+    if not still:
+        largest = max(screen["head_pose_range"].values())
+        print(f"  skipped: head pose varies by up to {largest:.4g}", flush=True)
+        return {**screen, "status": "skipped", "reason": "head_motion"}
+    video = sources.scamps_video(name, local, config, protocol)
+    record = measure_video(video, pose, protocol, work_dir / "versions")
+    record.update(
+        screen, layout=video.info["layout"], timing_s={"total": time.perf_counter() - started}
     )
-    record.update(base, layout=video.layout, timing_s={"total": time.perf_counter() - started})
     return record
 
 
@@ -235,41 +168,33 @@ def run_scamps(config: dict, protocol: dict, run: RunDir, pose, work_dir: Path, 
     n_skipped = sum(r["status"] == "skipped" for r in records)
     target = sel["n_videos"] if limit is None else min(sel["n_videos"], n_ok + limit)
     measured = 0
-    for attempt in range(1, STREAM_ATTEMPTS + 1):
-        if n_ok >= target:
-            return measured
-        try:
-            members = scamps.iter_tar_members(config["source"], work_dir / "stage", skip=seen)
-            for name, local in members:
-                record = process(
-                    name,
-                    lambda n=name, p=local: measure_scamps(n, p, config, protocol, pose, work_dir),
+    if n_ok >= target:
+        return measured
+    members = sources.stream_members(config["source"], work_dir / "stage", seen)
+    try:
+        for name, local in members:
+            record = process(
+                name,
+                lambda n=name, p=local: measure_scamps(n, p, config, protocol, pose, work_dir),
+            )
+            run.append(record)
+            if record["status"] in ("ok", "skipped"):
+                seen.add(name)
+            n_ok += record["status"] == "ok"
+            measured += record["status"] == "ok"
+            n_skipped += record["status"] == "skipped"
+            if n_ok == 0 and n_skipped >= sel["give_up_after"]:
+                raise SystemExit(
+                    f"none of the first {n_skipped} videos has a still head under "
+                    f"max_head_pose_range={sel['max_head_pose_range']:g}; the measured "
+                    "head-pose ranges are in items.jsonl. Push the results and ask for the "
+                    "threshold to be checked."
                 )
-                run.append(record)
-                if record["status"] in ("ok", "skipped"):
-                    seen.add(name)
-                n_ok += record["status"] == "ok"
-                measured += record["status"] == "ok"
-                n_skipped += record["status"] == "skipped"
-                if n_ok == 0 and n_skipped >= sel["give_up_after"]:
-                    members.close()
-                    raise SystemExit(
-                        f"none of the first {n_skipped} videos has a still head under "
-                        f"max_head_pose_range={sel['max_head_pose_range']:g}; the measured "
-                        "head-pose ranges are in items.jsonl. Push the results and ask for the "
-                        "threshold to be checked."
-                    )
-                if n_ok >= target:
-                    members.close()
-                    return measured
-            print(f"end of archive: {n_ok} head-still videos measured", flush=True)
-            return measured
-        except (OSError, EOFError, tarfile.TarError) as err:
-            # A dropped download: the next attempt streams again and skips finished members.
-            print(f"stream attempt {attempt} failed: {err}", flush=True)
-            if attempt == STREAM_ATTEMPTS:
-                raise
-            time.sleep(10 * attempt)
+            if n_ok >= target:
+                return measured
+    finally:
+        members.close()
+    print(f"end of archive: {n_ok} head-still videos measured", flush=True)
     return measured
 
 

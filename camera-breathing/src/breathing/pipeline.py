@@ -23,6 +23,7 @@ from breathing.video_io import iter_frames, keyframe_count, write_video
 
 PROTOCOL_PATH = Path(__file__).resolve().parents[2] / "configs" / "protocol.yaml"
 MEASURES = ("M1", "M2", "M3")
+RELOCATED_SHOULDER, RELOCATED_FACE = "shoulder_relocated", "face_relocated"
 
 FrameSource = Callable[[], Iterator[np.ndarray]]
 
@@ -103,7 +104,9 @@ def measure(
     A window is excluded (not counted in any metric) when the video has no region for the
     measurement, the reference is missing, or the reference lies outside the nominal band.
     These do not depend on the compression setting. A missing estimate is not an exclusion:
-    it counts as a failure.
+    it counts as a failure. The estimate does not depend on the reference, so it is recorded
+    for windows excluded for their reference too (e.g. to compare versions of a video); the
+    error and SNR need a reference.
     """
     out, cache = [], {}
     kwargs = rate_kwargs(protocol)
@@ -123,20 +126,22 @@ def measure(
                 "snr_db": None,
                 "excluded": None,
             }
+            out.append(record)
             segment = measurement_signal(m, traces, window, protocol, cache)
             if segment is None:
                 record["excluded"] = "no_region"
-            elif ref is None:
+                continue
+            if ref is None:
                 record["excluded"] = "no_reference"
             elif not low * 60 <= ref <= high * 60:
                 record["excluded"] = "reference_out_of_band"
-            else:
-                hz, snr = rate.analyze_window(segment, traces.fps, (low, high), ref / 60, **kwargs)
-                record["snr_db"] = snr
-                if hz is not None:
-                    record["est_bpm"] = 60 * hz
+            ref_hz = None if ref is None else ref / 60
+            hz, snr = rate.analyze_window(segment, traces.fps, (low, high), ref_hz, **kwargs)
+            record["snr_db"] = snr
+            if hz is not None:
+                record["est_bpm"] = 60 * hz
+                if ref is not None:
                     record["error_bpm"] = 60 * hz - ref
-            out.append(record)
     return out
 
 
@@ -152,16 +157,22 @@ def process_version(
     protocol: dict,
     work_dir: str | Path,
     variants: dict[str, tuple[dict, dict]] | None = None,
+    relocate: Callable[[Iterator[np.ndarray], float, tuple[int, int]], tuple[dict, dict]]
+    | None = None,
 ) -> dict:
     """Measure one version (the source or a compressed copy) of a video.
 
     variants: optional extra measurements on the same signals, {name: (windows, references)},
     recorded under record["variants"][name]. They never change record["windows"].
+    relocate: optional function (frames, fps, (height, width)) -> (boxes, info) that finds the
+    regions again on a decoded compressed version (sensitivity analysis). The version is then
+    also measured with those regions, recorded under record["relocated"]. Not used for the
+    source, whose regions are the reference.
     """
     started = time.perf_counter()
     height, width = size_hw
     record = {"setting": setting.name, **setting.to_dict()}
-    path = None
+    path, relocated = None, None
     try:
         if setting.codec is None:
             stream, fps_out, out_hw = frames(), fps, size_hw
@@ -181,13 +192,14 @@ def process_version(
                 keyframes=keyframe_count(path) if ext == ".mp4" else None,
             )
             stream = iter_frames(path, out_w, out_h)
+            if relocate is not None:
+                relocated = relocate(iter_frames(path, out_w, out_h), fps_out, out_hw)
         scaled = {name: scale_box(box, size_hw, out_hw) for name, box in boxes.items()}
-        traces = extract_traces(
-            stream,
-            fps_out,
-            {"shoulder": scaled.get("shoulder")},
-            {"face": scaled.get("face")},
-        )
+        motion, color = {"shoulder": scaled.get("shoulder")}, {"face": scaled.get("face")}
+        if relocated is not None:  # both sets of regions in one pass over the frames
+            motion[RELOCATED_SHOULDER] = relocated[0].get("shoulder")
+            color[RELOCATED_FACE] = relocated[0].get("face")
+        traces = extract_traces(stream, fps_out, motion, color)
     finally:
         if path is not None:
             path.unlink(missing_ok=True)
@@ -201,6 +213,18 @@ def process_version(
     if variants:
         record["variants"] = {
             name: measure(traces, w, r, protocol) for name, (w, r) in variants.items()
+        }
+    if relocated is not None:
+        new_boxes, info = relocated
+        moved = Traces(
+            fps=traces.fps,
+            n_frames=traces.n_frames,
+            motion={"shoulder": traces.motion[RELOCATED_SHOULDER]},
+            rgb={"face": traces.rgb[RELOCATED_FACE]},
+        )
+        record["relocated"] = {
+            "regions": {"boxes": new_boxes, **info},
+            "windows": measure(moved, windows, references, protocol),
         }
     record["seconds"] = time.perf_counter() - started
     return record
