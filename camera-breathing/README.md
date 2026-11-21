@@ -2,7 +2,7 @@
 
 Video from phones, video calls and cloud storage is almost always compressed before an algorithm sees it. This project measures breathing rate from shoulder motion and heart rate from subtle skin-color changes on the same clips, compresses the clips the way video calls do, and studies which measurement breaks first, why, and how to make breathing measurement more robust.
 
-**Status:** phase 2 (measurement pipeline and evaluation protocol). The protocol shared by all experiments is in [configs/protocol.yaml](configs/protocol.yaml), with the reasons in [notes/02-protocol.md](notes/02-protocol.md) (in Chinese). Results will appear here as experiments finish, and every number on this page will link to a file under `results/`.
+**Status:** phase 3 (baselines on the uncompressed videos). The protocol shared by all experiments is in [configs/protocol.yaml](configs/protocol.yaml), with the reasons in [notes/02-protocol.md](notes/02-protocol.md) (in Chinese). Results will appear here as experiments finish, and every number on this page will link to a file under `results/`.
 
 ## Questions
 
@@ -29,4 +29,4 @@ pip install -r requirements-dev.txt && pip install -e . --no-deps
 ruff check . && ruff format --check . && pytest
 ```
 
-Data checks and experiments run on Colab; the commands for each phase are in its pull request.
+Data checks and experiments run on Colab through the launcher notebook [notebooks/colab_runner.ipynb](notebooks/colab_runner.ipynb); the commands for each phase are in its pull request.

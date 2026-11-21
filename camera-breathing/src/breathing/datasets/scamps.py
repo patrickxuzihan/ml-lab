@@ -101,6 +101,15 @@ def read_video(path: str | Path, frames_key: str, waveform_keys: dict[str, str])
     return ScampsVideo(frames=frames, waveforms=waveforms, layout=layout)
 
 
+def read_waveforms(path: str | Path, keys: list[str]) -> dict[str, np.ndarray]:
+    """1-D per-frame variables by name, without loading the frames. Missing keys are left
+    out of the result."""
+    import h5py
+
+    with h5py.File(path, "r") as h5:
+        return {k: np.asarray(h5[k][()], dtype=np.float64).ravel() for k in keys if k in h5}
+
+
 def small_numeric_values(h5, max_size: int = 4) -> dict[str, list[float]]:
     """Datasets with at most `max_size` numbers, e.g. per-video labels such as rates."""
     found = {}

@@ -162,6 +162,21 @@ def respiration_from_ppg(
     return out
 
 
+def fuse_by_std(window: dict, max_std_bpm: float) -> float | None:
+    """Wider agreement rule for the sensitivity analysis, after Karlen et al. (2013).
+
+    window holds the per-method rates of `respiration_from_ppg` ("bw_bpm", "am_bpm",
+    "fm_bpm"). Returns their mean when all three exist and their sample standard deviation
+    (ddof=1) is at most max_std_bpm; otherwise None.
+    """
+    values = [window.get(key) for key in ("bw_bpm", "am_bpm", "fm_bpm")]
+    if any(v is None for v in values):
+        return None
+    if float(np.std(values, ddof=1)) > max_std_bpm:
+        return None
+    return float(np.mean(values))
+
+
 def oximeter_rates(
     hr: np.ndarray, fs: float, windows: list[Window], min_valid_bpm: float = 30.0
 ) -> list[dict]:
