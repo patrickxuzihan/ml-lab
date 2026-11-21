@@ -34,9 +34,11 @@
 ## UBFC-rPPG（使用）
 
 - **来源**：<https://sites.google.com/view/ybenezeth/ubfcrppg>
-- **获取**：官方页面给出 Google Drive 共享文件夹，不用申请。做法见 GUIDE 第 7 节：添加快捷方式到「我的云端硬盘」，Colab 挂载 Drive 后读取。
+- **获取**：官方页面给出 Google Drive 共享文件夹 `UBFC_DATASET`，不用申请。做法见 GUIDE 第 7 节：添加快捷方式到「我的云端硬盘」，Colab 挂载 Drive 后读取（路径 `/content/drive/MyDrive/UBFC_DATASET`）。
+  - 文件夹里有：已解压的 `DATASET_1`、`DATASET_2` 两个文件夹，它们的 zip 压缩包，`Agreement.xlsx`，`readme.txt`，以及作者提供的 `ubfcrppg_data_processor.m` 和 `.py`。
+  - 我们只用 `DATASET_2`（42 段）。`DATASET_1` 的真值是另一种格式，核实脚本记为跳过（`results/20261010_ubfc_inspect/folders.json`）。
 - **条款**：检索摘要显示官方页面写的是数据「shared for research purpose」。云端会话打不开这个页面，所以没有核对原文。
-  - TODO（你来补）：把页面上的使用条款或引用要求原文抄到这里。
+  - TODO（你来补）：打开文件夹里的 `Agreement.xlsx` 和 `readme.txt`，把使用条款或引用要求的要点抄到这里。如果 `Agreement.xlsx` 是要签字寄回的协议，先办完手续，再在后续阶段使用这份数据。
 - **引用**：Bobbia et al., *Unsupervised skin tissue segmentation for remote photoplethysmography*, Pattern Recognition Letters 124:82–90, 2019, doi:10.1016/j.patrec.2017.10.017。
 
 ## PURE（暂不纳入）
