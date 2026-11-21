@@ -151,6 +151,14 @@ def write_png(image: np.ndarray, path: str | Path) -> None:
     write_video([image], path, fps=1, codec_args=("-frames:v", "1", "-c:v", "png"))
 
 
+def keyframe_count(path: str | Path) -> int:
+    """Number of keyframe packets in the first video stream (no decoding needed)."""
+    cmd = ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "packet=flags"]
+    cmd += ["-of", "csv=p=0", str(path)]
+    out = subprocess.run(cmd, check=True, capture_output=True, text=True).stdout
+    return sum(1 for line in out.splitlines() if line.startswith("K"))
+
+
 def tool_version(tool: str = "ffmpeg") -> str | None:
     """First line of `<tool> -version`, or None if the tool is missing."""
     try:

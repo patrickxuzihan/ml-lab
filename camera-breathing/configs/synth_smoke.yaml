@@ -1,0 +1,41 @@
+# Phase-2 smoke run: the whole evaluation protocol (configs/protocol.yaml) on small synthetic
+# videos with known rates, for the uncompressed source and a few compression settings. It
+# checks that the pipeline runs end to end and that errors on the source are near zero; the
+# synthetic numbers say nothing about real videos.
+dataset: synth
+seed: 0
+n_subjects: 3
+videos_per_subject: 2
+video:
+  duration_s: 20.0  # like SCAMPS: breathing uses the whole clip, heart rate two 10 s windows
+  fps: 30.0
+  height: 120
+  width: 160
+  noise_std: 1.0  # 8-bit levels, per pixel and frame
+  face_center_frac: [0.25, 0.5]
+  face_radius_frac: [0.15, 0.12]
+  shoulder_half_width_frac: 0.15
+  # Drawn uniformly per video:
+  breathing_bpm: [8.0, 24.0]  # SCAMPS range
+  heart_bpm: [45.0, 150.0]  # SCAMPS range (40-150), kept inside the 42-180 bpm band
+  # Drawn uniformly per subject:
+  breathing_amplitude_px: [0.2, 0.5]
+  heart_amplitude: [0.5, 1.5]  # green channel, 8-bit levels
+  breathing_color_amplitude: [0.5, 1.0]
+# Contact PPG synthesized for each video, to check the PPG-derived breathing reference.
+ppg:
+  baseline: 0.1
+  amplitude_depth: 0.1
+  interval_depth: 0.05
+  noise_std: 0.05
+settings:
+  - source
+  - x264_crf0
+  - x264_crf23
+  - x264_crf38
+  - x265_crf28
+  - x264_br500
+  - x264_br125
+  - x265_br125
+  - x264_br250_d2_s2
+  - raw_d2_s2

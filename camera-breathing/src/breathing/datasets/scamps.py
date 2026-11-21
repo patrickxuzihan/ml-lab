@@ -174,6 +174,27 @@ def summarize_csv_tar(source: str) -> list[dict]:
     return out
 
 
+def iter_csv_column(source: str, column: str) -> Iterator[tuple[str, np.ndarray | None]]:
+    """Stream a tar.gz of CSVs and yield (file name, values of `column`) for each file.
+
+    Yields None for a file that has no such column.
+    """
+    with open_source(source) as stream, tarfile.open(fileobj=stream, mode="r|*") as tar:
+        for member in tar:
+            if not member.isfile() or not member.name.endswith(".csv"):
+                continue
+            with tar.extractfile(member) as f:
+                text = f.read().decode("utf-8", errors="replace")
+            reader = csv.reader(io.StringIO(text))
+            header = next(reader, [])
+            if column not in header:
+                yield member.name, None
+                continue
+            k = header.index(column)
+            values = [float(row[k]) for row in reader if len(row) > k and row[k].strip()]
+            yield member.name, np.array(values, dtype=np.float64)
+
+
 def http_head(url: str) -> dict:
     """Size and range support of a download link, without downloading it."""
     request = urllib.request.Request(url, method="HEAD")
