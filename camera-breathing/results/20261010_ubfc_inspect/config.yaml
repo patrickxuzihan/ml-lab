@@ -1,5 +1,5 @@
 dataset: ubfc
-source: /content/drive/MyDrive/UBFC-rPPG
+source: /content/drive/MyDrive/UBFC_DATASET
 save_example_figure: false
 pose:
   enabled: true

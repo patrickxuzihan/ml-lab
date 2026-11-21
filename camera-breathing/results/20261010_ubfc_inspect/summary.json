@@ -3,11 +3,11 @@
   "rows": [
     [
       "Items processed",
-      "0"
+      "42"
     ],
     [
       "Videos checked",
-      "0"
+      "42"
     ],
     [
       "Errors",
@@ -15,135 +15,135 @@
     ],
     [
       "Total size of checked videos (GB)",
-      "0"
+      "75.02"
     ],
     [
       "File size (bytes)",
-      "\u2013"
+      "1.261e+09 / 1.864e+09 / 1.891e+09"
     ],
     [
       "Container",
-      "\u2013"
+      "avi (42)"
     ],
     [
       "Codec",
-      "\u2013"
+      "rawvideo (42)"
     ],
     [
       "FourCC",
-      "\u2013"
+      "[0][0][0][0] (42)"
     ],
     [
       "Pixel format",
-      "\u2013"
+      "bgr24 (42)"
     ],
     [
       "Width",
-      "\u2013"
+      "640 (42)"
     ],
     [
       "Height",
-      "\u2013"
+      "480 (42)"
     ],
     [
       "Frame rate (fps)",
-      "\u2013"
+      "23.21 / 29.7 / 29.98"
     ],
     [
       "Frames (header)",
-      "\u2013"
+      "1368 / 2022 / 2052"
     ],
     [
       "Frames (decoded)",
-      "\u2013"
+      "1368 / 2022 / 2052"
     ],
     [
       "Duration (s, decoded)",
-      "\u2013"
+      "46.2 / 68.18 / 68.61"
     ],
     [
       "Bit rate (bit/s)",
-      "\u2013"
+      "1.712e+08 / 2.19e+08 / 2.211e+08"
     ],
     [
       "GT samples",
-      "\u2013"
+      "1368 / 2022 / 2052"
     ],
     [
       "GT sampling rate (Hz)",
-      "\u2013"
+      "23.26 / 30.3 / 30.3"
     ],
     [
       "GT duration (s)",
-      "\u2013"
+      "46.23 / 68.13 / 68.58"
     ],
     [
       "GT largest gap (s)",
-      "\u2013"
+      "0.046 / 0.1545 / 1.005"
     ],
     [
       "GT timestamps monotonic",
-      "\u2013"
+      "33 of 42"
     ],
     [
       "GT samples minus frames",
-      "\u2013"
+      "0 / 0 / 0"
     ],
     [
       "Oximeter HR median (bpm)",
-      "\u2013"
+      "7 / 98.5 / 121"
     ],
     [
       "Oximeter HR zeros",
-      "\u2013"
+      "0 / 0 / 0"
     ],
     [
       "Copy from Drive + check per video (s)",
-      "\u2013"
+      "28.13 / 43.09 / 111.1"
     ],
     [
       "Pose detected (fraction of sampled frames)",
-      "\u2013"
+      "1 / 1 / 1"
     ],
     [
       "Nose visible",
-      "\u2013"
+      "1 / 1 / 1"
     ],
     [
       "Both shoulders visible",
-      "\u2013"
+      "1 / 1 / 1"
     ],
     [
       "A hip visible",
-      "\u2013"
+      "0 / 0 / 0"
     ],
     [
       "Shoulder line (fraction of height)",
-      "\u2013"
+      "0.6574 / 0.7497 / 0.8813"
     ],
     [
       "Shoulder width (px)",
-      "\u2013"
+      "202.2 / 266.9 / 342.2"
     ],
     [
       "Rows below shoulders (px, median)",
-      "\u2013"
+      "56.96 / 120.2 / 164.4"
     ],
     [
       "Rows below shoulders (px, min)",
-      "\u2013"
+      "43.22 / 116.8 / 156.3"
     ],
     [
       "Rows below shoulders / shoulder width",
-      "\u2013"
+      "0.2191 / 0.4735 / 0.6175"
     ],
     [
       "Face width (px)",
-      "\u2013"
+      "86.65 / 104.9 / 128.1"
     ],
     [
       "Processing time per video (s)",
-      "\u2013"
+      "7.402 / 11.5 / 23.64"
     ]
   ],
   "probe_rows": []
