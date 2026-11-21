@@ -151,8 +151,13 @@ def process_version(
     references: dict[str, list[float | None]],
     protocol: dict,
     work_dir: str | Path,
+    variants: dict[str, tuple[dict, dict]] | None = None,
 ) -> dict:
-    """Measure one version (the source or a compressed copy) of a video."""
+    """Measure one version (the source or a compressed copy) of a video.
+
+    variants: optional extra measurements on the same signals, {name: (windows, references)},
+    recorded under record["variants"][name]. They never change record["windows"].
+    """
     started = time.perf_counter()
     height, width = size_hw
     record = {"setting": setting.name, **setting.to_dict()}
@@ -192,8 +197,12 @@ def process_version(
         width=out_hw[1],
         n_frames=traces.n_frames,
         windows=measure(traces, windows, references, protocol),
-        seconds=time.perf_counter() - started,
     )
+    if variants:
+        record["variants"] = {
+            name: measure(traces, w, r, protocol) for name, (w, r) in variants.items()
+        }
+    record["seconds"] = time.perf_counter() - started
     return record
 
 

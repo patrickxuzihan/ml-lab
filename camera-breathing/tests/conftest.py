@@ -41,8 +41,13 @@ def write_ubfc_subject(folder: Path, frames: np.ndarray, spec: SynthSpec) -> Non
     (folder / "ground_truth.txt").write_text("\n".join(lines) + "\n")
 
 
-def write_scamps_mat(path: Path, frames: np.ndarray, spec: SynthSpec, dtype=np.uint8) -> None:
-    """A SCAMPS-style MATLAB v7.3 file: arrays stored with their axes reversed, as MATLAB does."""
+def write_scamps_mat(
+    path: Path, frames: np.ndarray, spec: SynthSpec, dtype=np.uint8, extra: dict | None = None
+) -> None:
+    """A SCAMPS-style MATLAB v7.3 file: arrays stored with their axes reversed, as MATLAB does.
+
+    extra: further per-frame variables by name, e.g. head pose (d_pitch, d_roll, d_yaw).
+    """
     import h5py
 
     stored = frames.transpose(3, 2, 1, 0)  # (T, H, W, 3) in MATLAB -> (3, W, H, T) in HDF5
@@ -53,6 +58,8 @@ def write_scamps_mat(path: Path, frames: np.ndarray, spec: SynthSpec, dtype=np.u
         h5["d_br"] = breathing_displacement(spec)[None, :]  # MATLAB column vector -> (1, T)
         h5["d_ppg"] = heart_modulation(spec)[None, :]
         h5["hr_label"] = np.array([[60.0 * spec.heart_hz]])
+        for name, values in (extra or {}).items():
+            h5[name] = np.asarray(values, dtype=np.float64)[None, :]
 
 
 def write_tar_gz(path: Path, files: dict[str, Path]) -> None:

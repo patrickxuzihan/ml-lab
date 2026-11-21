@@ -1,0 +1,27 @@
+# Phase-3 baseline on SCAMPS (synthetic; research use only, R-UDA licence): the evaluation
+# protocol (configs/protocol.yaml) on the uncompressed source.
+dataset: scamps
+# The full set is a single tar.gz (593 GB, results/20261010_scamps_inspect/downloads.json)
+# that can only be read from the start. It is streamed one video at a time: each video is
+# written to local disk, measured or skipped, and deleted. Streaming stops once
+# selection.n_videos head-still videos have been measured.
+source: https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_videos.tar.gz
+fps: 30.0  # confirmed from the labels: results/20261122_scamps_timing/summary.md
+frames_key: RawFrames  # full rendered frame (320x240)
+waveform_keys:
+  ppg: d_ppg
+  breathing: d_br
+pose_model_url: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task
+selection:
+  # Head-still subset (notes/02-protocol.md section 9): the regions are fixed boxes, so videos
+  # with head rotation come later. A video is measured when every head-pose channel varies by
+  # at most max_head_pose_range over the whole video, i.e. stays constant.
+  head_pose_keys: [d_pitch, d_roll, d_yaw]
+  max_head_pose_range: 1.0e-6
+  # Recorded for every video (facial actions are another confounder); not used to select.
+  action_unit_keys: [au2, au4, au7, au12, au15, au17, au18, au26, au27, au45]
+  # The first n_videos head-still videos in archive order.
+  n_videos: 100
+  # Stop with an explanation if this many videos were skipped before the first head-still
+  # one: the rule above would then select nothing.
+  give_up_after: 200

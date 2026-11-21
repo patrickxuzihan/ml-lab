@@ -4,4 +4,4 @@ Hands-on machine learning projects by Zihan Xu. Each project is self-contained, 
 
 | Project | Question | Status |
 |---|---|---|
-| [camera-breathing](camera-breathing/) | Does camera-based breathing measurement still work after video compression, and does it hold up better than heart rate? | Phase 2 |
+| [camera-breathing](camera-breathing/) | Does camera-based breathing measurement still work after video compression, and does it hold up better than heart rate? | Phase 3 |

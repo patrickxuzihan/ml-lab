@@ -1,0 +1,15 @@
+# Phase-3 baseline on UBFC-rPPG: the evaluation protocol (configs/protocol.yaml) on the
+# uncompressed source. Real people: only numbers are kept (no frames, landmarks or signals).
+dataset: ubfc
+# Folder of the Google Drive shortcut to the shared dataset folder, as mounted in Colab (the
+# phase-1 data check used this path). Override with --source. Subject folders are found
+# recursively; DATASET_1 folders have no ground_truth.txt and are skipped.
+source: /content/drive/MyDrive/UBFC_DATASET
+pose_model_url: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task
+sensitivity:
+  # Subjects below this frame rate (subject25-27, about 23.3 fps; notes/01-data.md 4.2) are
+  # left out in one sensitivity analysis.
+  min_fps: 25.0
+  # Wider breathing-reference rule (notes/02-protocol.md section 4): the mean of BW, AM and FM
+  # when their sample standard deviation is at most this, after Karlen et al. (2013).
+  wide_reference_max_std_bpm: 4.0
