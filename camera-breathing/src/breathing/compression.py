@@ -12,7 +12,8 @@ Pure functions only; `video_io.write_video` runs ffmpeg. Settings come from the
               the effect of frame rate and resolution from that of compression.
 
 Every encoded version has a single keyframe (the first frame): no periodic or scene-cut
-keyframes. All lossy versions are 4:2:0 (`yuv420p`).
+keyframes. All lossy versions are 4:2:0 (`yuv420p`). Encoders run single-threaded so that the
+same input gives the same bitstream on any machine.
 """
 
 from __future__ import annotations
@@ -139,11 +140,12 @@ def ffmpeg_args(setting: Setting, width: int, height: int, cfg: dict) -> tuple[l
     if setting.codec == "rawvideo":
         return args + ["-c:v", "rawvideo", "-pix_fmt", "bgr24"], ".avi"
 
-    gop = int(cfg["gop_frames"])
+    gop, threads = int(cfg["gop_frames"]), int(cfg["threads"])
     args += ["-c:v", setting.codec, "-preset", cfg["preset"], "-pix_fmt", cfg["pix_fmt"]]
     x265_params = [f"keyint={gop}", "scenecut=0", "log-level=error"]
+    x265_params += [f"pools={threads}", f"frame-threads={threads}"]
     if setting.codec == "libx264":
-        args += ["-g", str(gop), "-sc_threshold", "0"]
+        args += ["-g", str(gop), "-sc_threshold", "0", "-threads", str(threads)]
     elif setting.codec != "libx265":
         raise ValueError(f"unsupported codec {setting.codec}")
 

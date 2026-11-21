@@ -79,6 +79,9 @@ compression:
   # keyframes would add an artifact at 1/interval Hz and its multiples.
   gop_frames: 100000
   scale_flags: area
+  # One encoder thread: x264's sliced threads (zerolatency) make bitrate-mode output differ
+  # from run to run, and multi-threaded output depends on the machine's core count.
+  threads: 1
   vbv_buffer_s: 1.0  # bitrate and allocation ladders: VBV buffer = target bitrate x 1 s
   ladders:
     crf:  # storage / recording: ffmpeg defaults otherwise (B-frames on)

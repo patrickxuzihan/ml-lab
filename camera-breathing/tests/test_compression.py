@@ -8,6 +8,7 @@ from test_measurements import M_SPEC, regions
 
 from breathing import compression, pipeline
 from breathing.synth import breathing_displacement, heart_modulation, make_video
+from breathing.video_io import write_video
 
 PROTOCOL = pipeline.load_protocol()
 CFG = PROTOCOL["compression"]
@@ -45,6 +46,22 @@ def test_crf_arguments():
     args, _ = compression.ffmpeg_args(by_name("x265_crf28"), 160, 120, CFG)
     params = args[args.index("-x265-params") + 1]
     assert "keyint=100000" in params and "scenecut=0" in params
+
+
+def test_encoders_are_single_threaded_and_repeatable(tmp_path):
+    args, _ = compression.ffmpeg_args(by_name("x264_br500"), 160, 120, CFG)
+    assert args[args.index("-threads") + 1] == "1"
+    args265, _ = compression.ffmpeg_args(by_name("x265_br500"), 160, 120, CFG)
+    params = args265[args265.index("-x265-params") + 1]
+    assert "pools=1" in params and "frame-threads=1" in params
+
+    frames = make_video(replace(M_SPEC, n_frames=60, noise_std=2.0))
+    written = []
+    for i in range(2):
+        path = tmp_path / f"{i}.mp4"
+        write_video(iter(frames), path, 30.0, args)
+        written.append(path.read_bytes())
+    assert written[0] == written[1]
 
 
 def test_bitrate_arguments():
