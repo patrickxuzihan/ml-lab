@@ -34,9 +34,18 @@
 ## UBFC-rPPG（使用）
 
 - **来源**：<https://sites.google.com/view/ybenezeth/ubfcrppg>
-- **获取**：官方页面给出 Google Drive 共享文件夹，不用申请。做法见 GUIDE 第 7 节：添加快捷方式到「我的云端硬盘」，Colab 挂载 Drive 后读取。
-- **条款**：检索摘要显示官方页面写的是数据「shared for research purpose」。云端会话打不开这个页面，所以没有核对原文。
-  - TODO（你来补）：把页面上的使用条款或引用要求原文抄到这里。
+- **获取**：官方页面给出 Google Drive 共享文件夹 `UBFC_DATASET`，不用申请。做法见 GUIDE 第 7 节：添加快捷方式到「我的云端硬盘」，Colab 挂载 Drive 后读取（路径 `/content/drive/MyDrive/UBFC_DATASET`）。
+  - 文件夹里有：已解压的 `DATASET_1`、`DATASET_2` 两个文件夹，它们的 zip 压缩包，`Agreement.xlsx`，`readme.txt`，以及作者提供的 `ubfcrppg_data_processor.m` 和 `.py`。
+  - 我们只用 `DATASET_2`（42 段）。`DATASET_1` 的真值是另一种格式，核实脚本记为跳过（`results/20261010_ubfc_inspect/folders.json`）。
+- **条款**：不用签协议。依据是官方页面（检索摘要显示写的是「shared for research purpose」）和共享文件夹里的两个文件，内容由你在 2026-11-21 转述：
+  - `Agreement.xlsx` 不是要我们签的协议，而是**每个受试者的同意情况**，两列分别是「同意在 PPT、网站等处展示画面」和「同意共享数据」：
+    - 不同意或没有填共享数据的受试者：2、6、7、19、21、28、29。这 7 人的数据没有放进共享文件夹，DATASET_2 里正好是剩下的 42 段（`results/20261010_ubfc_inspect/folders.json`）。所以我们用的每一段，受试者都同意了共享数据。
+    - 不同意展示画面的：21（不在共享数据里）和 **27**（在共享数据里）。
+  - `readme.txt` 写明：**subject 21 和 27 的脸部画面不得出现在任何论文、演示或报告里。**
+  - 我们的做法：CLAUDE.md 规则 3 本来就禁止发布任何真人画面，所以这条对我们没有额外影响；但以后写报告、做演示时也要记得，subject27 的画面绝对不能用。
+  - `readme.txt` 还确认了真值格式。DATASET_2 的 `ground_truth.txt`：第 1 行 PPG 信号，第 2 行心率，第 3 行时间（秒，科学计数法），和我们的读取器一致。DATASET_1 的 `gtdump.xmp` 是四列：时间（毫秒）、心率、血氧、PPG。
+  - `readme.txt` 还说明：作者评估心率时**没有用血氧仪给的心率值**，而是用接触式 PPG 信号算出的心率作参考。这和 `notes/01-data.md` 第 4.3 节的建议一致。
+  - 联系人：yannick.benezeth@u-bourgogne.fr。
 - **引用**：Bobbia et al., *Unsupervised skin tissue segmentation for remote photoplethysmography*, Pattern Recognition Letters 124:82–90, 2019, doi:10.1016/j.patrec.2017.10.017。
 
 ## PURE（暂不纳入）
