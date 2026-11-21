@@ -1,0 +1,3 @@
+source: https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_waveforms_csv.tar.gz
+column: t_ppg
+assumed_fps: 30.0
