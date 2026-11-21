@@ -1,0 +1,150 @@
+{
+  "dataset": "ubfc",
+  "rows": [
+    [
+      "Items processed",
+      "0"
+    ],
+    [
+      "Videos checked",
+      "0"
+    ],
+    [
+      "Errors",
+      "0"
+    ],
+    [
+      "Total size of checked videos (GB)",
+      "0"
+    ],
+    [
+      "File size (bytes)",
+      "\u2013"
+    ],
+    [
+      "Container",
+      "\u2013"
+    ],
+    [
+      "Codec",
+      "\u2013"
+    ],
+    [
+      "FourCC",
+      "\u2013"
+    ],
+    [
+      "Pixel format",
+      "\u2013"
+    ],
+    [
+      "Width",
+      "\u2013"
+    ],
+    [
+      "Height",
+      "\u2013"
+    ],
+    [
+      "Frame rate (fps)",
+      "\u2013"
+    ],
+    [
+      "Frames (header)",
+      "\u2013"
+    ],
+    [
+      "Frames (decoded)",
+      "\u2013"
+    ],
+    [
+      "Duration (s, decoded)",
+      "\u2013"
+    ],
+    [
+      "Bit rate (bit/s)",
+      "\u2013"
+    ],
+    [
+      "GT samples",
+      "\u2013"
+    ],
+    [
+      "GT sampling rate (Hz)",
+      "\u2013"
+    ],
+    [
+      "GT duration (s)",
+      "\u2013"
+    ],
+    [
+      "GT largest gap (s)",
+      "\u2013"
+    ],
+    [
+      "GT timestamps monotonic",
+      "\u2013"
+    ],
+    [
+      "GT samples minus frames",
+      "\u2013"
+    ],
+    [
+      "Oximeter HR median (bpm)",
+      "\u2013"
+    ],
+    [
+      "Oximeter HR zeros",
+      "\u2013"
+    ],
+    [
+      "Copy from Drive + check per video (s)",
+      "\u2013"
+    ],
+    [
+      "Pose detected (fraction of sampled frames)",
+      "\u2013"
+    ],
+    [
+      "Nose visible",
+      "\u2013"
+    ],
+    [
+      "Both shoulders visible",
+      "\u2013"
+    ],
+    [
+      "A hip visible",
+      "\u2013"
+    ],
+    [
+      "Shoulder line (fraction of height)",
+      "\u2013"
+    ],
+    [
+      "Shoulder width (px)",
+      "\u2013"
+    ],
+    [
+      "Rows below shoulders (px, median)",
+      "\u2013"
+    ],
+    [
+      "Rows below shoulders (px, min)",
+      "\u2013"
+    ],
+    [
+      "Rows below shoulders / shoulder width",
+      "\u2013"
+    ],
+    [
+      "Face width (px)",
+      "\u2013"
+    ],
+    [
+      "Processing time per video (s)",
+      "\u2013"
+    ]
+  ],
+  "probe_rows": []
+}

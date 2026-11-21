@@ -1,0 +1,8 @@
+dataset: ubfc
+source: /content/drive/MyDrive/UBFC-rPPG
+save_example_figure: false
+pose:
+  enabled: true
+  model_url: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task
+  sample_fps: 2.0
+  visibility_threshold: 0.5

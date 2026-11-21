@@ -1,0 +1,37 @@
+[
+  {
+    "url": "https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_videos_example.tar.gz",
+    "status": 200,
+    "size_bytes": 1228897063,
+    "accept_ranges": "bytes",
+    "last_modified": "Thu, 28 Nov 2024 09:39:57 GMT"
+  },
+  {
+    "url": "https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_videos.tar.gz",
+    "status": 200,
+    "size_bytes": 593450450686,
+    "accept_ranges": "bytes",
+    "last_modified": "Thu, 28 Nov 2024 09:45:24 GMT"
+  },
+  {
+    "url": "https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_waveforms.tar.gz",
+    "status": 200,
+    "size_bytes": 455909231,
+    "accept_ranges": "bytes",
+    "last_modified": "Thu, 28 Nov 2024 09:38:47 GMT"
+  },
+  {
+    "url": "https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_waveforms_csv.tar.gz",
+    "status": 200,
+    "size_bytes": 61824513,
+    "accept_ranges": "bytes",
+    "last_modified": "Thu, 28 Nov 2024 09:38:37 GMT"
+  },
+  {
+    "url": "https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/ScampsTrainTestSplit.csv",
+    "status": 200,
+    "size_bytes": 262009,
+    "accept_ranges": "bytes",
+    "last_modified": "Thu, 28 Nov 2024 09:38:58 GMT"
+  }
+]

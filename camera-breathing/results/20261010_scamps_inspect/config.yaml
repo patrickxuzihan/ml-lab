@@ -1,0 +1,26 @@
+dataset: scamps
+source: https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_videos_example.tar.gz
+labels_csv: https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_waveforms_csv.tar.gz
+head_urls:
+- https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_videos_example.tar.gz
+- https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_videos.tar.gz
+- https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_waveforms.tar.gz
+- https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_waveforms_csv.tar.gz
+- https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/ScampsTrainTestSplit.csv
+fps: 30.0
+frames_key: RawFrames
+waveform_keys:
+  ppg: d_ppg
+  breathing: d_br
+save_example_figure: true
+pose:
+  enabled: true
+  model_url: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task
+  sample_fps: 2.0
+  visibility_threshold: 0.5
+probe:
+  band_hz:
+  - 0.1
+  - 0.7
+  max_lag_s: 2.0
+  match_tolerance_bpm: 2.0
