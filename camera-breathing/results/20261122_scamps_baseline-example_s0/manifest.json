@@ -1,0 +1,46 @@
+{
+  "run_id": "20261122_scamps_baseline-example_s0",
+  "sessions": [
+    {
+      "started_utc": "2026-11-21T05:54:31+00:00",
+      "git": {
+        "commit": "109a52a64cc45de42f71c581a53628c578a1a38b",
+        "dirty": false
+      },
+      "python": "3.13.18",
+      "packages": {
+        "numpy": "2.4.6",
+        "scipy": "1.16.3",
+        "h5py": "3.14.0",
+        "PyYAML": "6.0.3",
+        "mediapipe": "1.2.3",
+        "opencv-contrib-python": "4.14.0.94"
+      },
+      "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+      "ffprobe": "ffprobe version 6.1.1-3ubuntu5 Copyright (c) 2007-2023 the FFmpeg developers",
+      "hardware": {
+        "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "cpu_count": 2,
+        "memory_bytes": 13605818368,
+        "gpus": []
+      },
+      "pose_model": {
+        "file": "pose_landmarker_full.task",
+        "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+      },
+      "argv": [
+        "--config",
+        "configs/baseline_scamps.yaml",
+        "--run-id",
+        "20261122_scamps_baseline-example_s0",
+        "--results-root",
+        "/content/drive/MyDrive/camera-breathing/results",
+        "--work-dir",
+        "/content/work",
+        "--source",
+        "https://facesyntheticspubwedata.z6.web.core.windows.net/neurips-2022/scamps_videos_example.tar.gz"
+      ]
+    }
+  ]
+}

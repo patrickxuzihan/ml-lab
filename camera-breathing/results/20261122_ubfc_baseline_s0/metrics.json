@@ -1,0 +1,1593 @@
+{
+  "dataset": "ubfc",
+  "counts": {
+    "measured": 42,
+    "subjects": 42,
+    "skipped": 0,
+    "errors": 0
+  },
+  "regions": {
+    "shoulder_source": {
+      "pose": 42
+    },
+    "face_source": {
+      "pose": 42
+    }
+  },
+  "main": {
+    "n_videos": 42,
+    "per_measure": {
+      "M1": {
+        "n_windows": 12,
+        "n_subjects": 10,
+        "coverage": 1.0,
+        "mae": {
+          "value": 10.02130197488041,
+          "ci": [
+            6.547038124741296,
+            13.976395025738743
+          ]
+        },
+        "rmse": {
+          "value": 12.354669287929008,
+          "ci": [
+            9.449555247727352,
+            15.185016987783529
+          ]
+        },
+        "mape": {
+          "value": 121.53093433176039,
+          "ci": [
+            71.39725583066692,
+            185.46788452625472
+          ]
+        },
+        "pearson_r": {
+          "value": 0.12642307580780804,
+          "ci": [
+            -0.5599883745481117,
+            0.3758277018589059
+          ]
+        },
+        "success_rate": {
+          "value": 0.3333333333333333,
+          "ci": [
+            0.1,
+            0.5454545454545454
+          ]
+        },
+        "snr_db": {
+          "value": 2.468229716824917,
+          "ci": [
+            -2.191789290093227,
+            6.8539602735735485
+          ]
+        }
+      },
+      "M2": {
+        "n_windows": 12,
+        "n_subjects": 10,
+        "coverage": 1.0,
+        "mae": {
+          "value": 4.7258839781140285,
+          "ci": [
+            1.702519946954659,
+            7.951493848959
+          ]
+        },
+        "rmse": {
+          "value": 7.212812998937632,
+          "ci": [
+            2.7286740663491713,
+            10.085874238448266
+          ]
+        },
+        "mape": {
+          "value": 38.32834401950425,
+          "ci": [
+            17.114465394509512,
+            63.96280011675523
+          ]
+        },
+        "pearson_r": {
+          "value": -0.3099375732564226,
+          "ci": [
+            -0.7613423813747066,
+            0.3437450854317865
+          ]
+        },
+        "success_rate": {
+          "value": 0.5,
+          "ci": [
+            0.18181818181818182,
+            0.8333333333333334
+          ]
+        },
+        "snr_db": {
+          "value": 2.905190154909917,
+          "ci": [
+            -2.512302955403854,
+            8.093210514358702
+          ]
+        }
+      },
+      "M3": {
+        "n_windows": 248,
+        "n_subjects": 42,
+        "coverage": 1.0,
+        "mae": {
+          "value": 2.6375735394746065,
+          "ci": [
+            0.962840789538846,
+            5.053270883310134
+          ]
+        },
+        "rmse": {
+          "value": 9.582130489748362,
+          "ci": [
+            3.5465814835085974,
+            14.489460378046672
+          ]
+        },
+        "mape": {
+          "value": 2.831654308769111,
+          "ci": [
+            1.0206034785780416,
+            5.250105569258523
+          ]
+        },
+        "pearson_r": {
+          "value": 0.8774780848118792,
+          "ci": [
+            0.749281985380711,
+            0.9801058809785099
+          ]
+        },
+        "success_rate": {
+          "value": 0.9354838709677419,
+          "ci": [
+            0.8759875502008032,
+            0.98
+          ]
+        },
+        "snr_db": {
+          "value": 7.550688140357193,
+          "ci": [
+            6.3513023617773445,
+            8.647403053097934
+          ]
+        }
+      }
+    },
+    "excluded_windows": {
+      "M1": {
+        "no_reference": 69
+      },
+      "M2": {
+        "no_reference": 69
+      }
+    }
+  },
+  "variants": {
+    "whole_video": {
+      "n_videos": 42,
+      "per_measure": {
+        "M1": {
+          "n_windows": 10,
+          "n_subjects": 10,
+          "coverage": 1.0,
+          "mae": {
+            "value": 6.407439221930126,
+            "ci": [
+              2.1613279696131285,
+              11.145029089577806
+            ]
+          },
+          "rmse": {
+            "value": 9.602018237121058,
+            "ci": [
+              5.125447470739103,
+              13.072690602351088
+            ]
+          },
+          "mape": {
+            "value": 69.64862338660667,
+            "ci": [
+              23.180913941742737,
+              120.96097659154387
+            ]
+          },
+          "pearson_r": {
+            "value": 0.16631627892116288,
+            "ci": [
+              -0.6549581135076338,
+              0.6603594491217547
+            ]
+          },
+          "success_rate": {
+            "value": 0.5,
+            "ci": [
+              0.2,
+              0.8
+            ]
+          },
+          "snr_db": {
+            "value": 0.26544553911025837,
+            "ci": [
+              -4.459660763528187,
+              5.265381832794903
+            ]
+          }
+        },
+        "M2": {
+          "n_windows": 10,
+          "n_subjects": 10,
+          "coverage": 1.0,
+          "mae": {
+            "value": 6.016464630847371,
+            "ci": [
+              2.734476074660547,
+              9.877886931575713
+            ]
+          },
+          "rmse": {
+            "value": 8.23174794698148,
+            "ci": [
+              4.251615855901635,
+              11.703969101493428
+            ]
+          },
+          "mape": {
+            "value": 33.98115940372583,
+            "ci": [
+              20.267656553300526,
+              47.578659041366194
+            ]
+          },
+          "pearson_r": {
+            "value": -0.005624889494749324,
+            "ci": [
+              -0.6222966814773998,
+              0.5716515702634866
+            ]
+          },
+          "success_rate": {
+            "value": 0.3,
+            "ci": [
+              0.0,
+              0.6
+            ]
+          },
+          "snr_db": {
+            "value": -5.408425809389012,
+            "ci": [
+              -10.093208951391174,
+              -0.9721830465057976
+            ]
+          }
+        },
+        "M3": {
+          "n_windows": 42,
+          "n_subjects": 42,
+          "coverage": 1.0,
+          "mae": {
+            "value": 3.0049399288519165,
+            "ci": [
+              0.9737042100052841,
+              5.738792815956238
+            ]
+          },
+          "rmse": {
+            "value": 8.737065275551132,
+            "ci": [
+              2.2926820055728583,
+              13.482741198526702
+            ]
+          },
+          "mape": {
+            "value": 3.203325377515632,
+            "ci": [
+              1.0211968756673546,
+              6.1170891161079926
+            ]
+          },
+          "pearson_r": {
+            "value": 0.9081617914282625,
+            "ci": [
+              0.8043293982662275,
+              0.9930114529269839
+            ]
+          },
+          "success_rate": {
+            "value": 0.8809523809523809,
+            "ci": [
+              0.7857142857142857,
+              0.9761904761904762
+            ]
+          },
+          "snr_db": {
+            "value": -3.2414218698708392,
+            "ci": [
+              -4.5720588868155625,
+              -1.9219114416865477
+            ]
+          }
+        }
+      },
+      "excluded_windows": {
+        "M1": {
+          "no_reference": 32
+        },
+        "M2": {
+          "no_reference": 32
+        }
+      }
+    },
+    "wide_reference": {
+      "n_videos": 42,
+      "per_measure": {
+        "M1": {
+          "n_windows": 33,
+          "n_subjects": 23,
+          "coverage": 1.0,
+          "mae": {
+            "value": 10.93455413739265,
+            "ci": [
+              8.163501160405689,
+              13.671094937526462
+            ]
+          },
+          "rmse": {
+            "value": 13.13852669263401,
+            "ci": [
+              10.826982971790315,
+              15.147697262302692
+            ]
+          },
+          "mape": {
+            "value": 122.3355774970835,
+            "ci": [
+              88.88257494829236,
+              156.27669778800922
+            ]
+          },
+          "pearson_r": {
+            "value": -0.05402792619292657,
+            "ci": [
+              -0.2947850294740873,
+              0.13046010154585222
+            ]
+          },
+          "success_rate": {
+            "value": 0.24242424242424243,
+            "ci": [
+              0.11428571428571428,
+              0.37142857142857144
+            ]
+          },
+          "snr_db": {
+            "value": -0.052627842870273736,
+            "ci": [
+              -3.036058493197595,
+              2.9946790438503674
+            ]
+          }
+        },
+        "M2": {
+          "n_windows": 33,
+          "n_subjects": 23,
+          "coverage": 1.0,
+          "mae": {
+            "value": 3.9457438183072866,
+            "ci": [
+              2.5427937494515485,
+              5.537020659948468
+            ]
+          },
+          "rmse": {
+            "value": 5.76155881676136,
+            "ci": [
+              3.6839858433211297,
+              7.55932825107428
+            ]
+          },
+          "mape": {
+            "value": 32.497576478174125,
+            "ci": [
+              22.606744199542334,
+              43.601861173076884
+            ]
+          },
+          "pearson_r": {
+            "value": -0.22475476442651282,
+            "ci": [
+              -0.4206155695639074,
+              0.0769813268074215
+            ]
+          },
+          "success_rate": {
+            "value": 0.36363636363636365,
+            "ci": [
+              0.18181818181818182,
+              0.5454545454545454
+            ]
+          },
+          "snr_db": {
+            "value": 4.967182729055038,
+            "ci": [
+              1.930603927950268,
+              7.946647069558763
+            ]
+          }
+        },
+        "M3": {
+          "n_windows": 248,
+          "n_subjects": 42,
+          "coverage": 1.0,
+          "mae": {
+            "value": 2.6375735394746065,
+            "ci": [
+              0.962840789538846,
+              5.053270883310134
+            ]
+          },
+          "rmse": {
+            "value": 9.582130489748362,
+            "ci": [
+              3.5465814835085974,
+              14.489460378046672
+            ]
+          },
+          "mape": {
+            "value": 2.831654308769111,
+            "ci": [
+              1.0206034785780416,
+              5.250105569258523
+            ]
+          },
+          "pearson_r": {
+            "value": 0.8774780848118792,
+            "ci": [
+              0.749281985380711,
+              0.9801058809785099
+            ]
+          },
+          "success_rate": {
+            "value": 0.9354838709677419,
+            "ci": [
+              0.8759875502008032,
+              0.98
+            ]
+          },
+          "snr_db": {
+            "value": 7.550688140357193,
+            "ci": [
+              6.3513023617773445,
+              8.647403053097934
+            ]
+          }
+        }
+      },
+      "excluded_windows": {
+        "M1": {
+          "no_reference": 48
+        },
+        "M2": {
+          "no_reference": 48
+        }
+      }
+    }
+  },
+  "sensitivity": {
+    "without_face_anchored": {
+      "n_removed": 0,
+      "n_videos": 42,
+      "per_measure": {
+        "M1": {
+          "n_windows": 12,
+          "n_subjects": 10,
+          "coverage": 1.0,
+          "mae": {
+            "value": 10.02130197488041,
+            "ci": [
+              6.547038124741296,
+              13.976395025738743
+            ]
+          },
+          "rmse": {
+            "value": 12.354669287929008,
+            "ci": [
+              9.449555247727352,
+              15.185016987783529
+            ]
+          },
+          "mape": {
+            "value": 121.53093433176039,
+            "ci": [
+              71.39725583066692,
+              185.46788452625472
+            ]
+          },
+          "pearson_r": {
+            "value": 0.12642307580780804,
+            "ci": [
+              -0.5599883745481117,
+              0.3758277018589059
+            ]
+          },
+          "success_rate": {
+            "value": 0.3333333333333333,
+            "ci": [
+              0.1,
+              0.5454545454545454
+            ]
+          },
+          "snr_db": {
+            "value": 2.468229716824917,
+            "ci": [
+              -2.191789290093227,
+              6.8539602735735485
+            ]
+          }
+        },
+        "M2": {
+          "n_windows": 12,
+          "n_subjects": 10,
+          "coverage": 1.0,
+          "mae": {
+            "value": 4.7258839781140285,
+            "ci": [
+              1.702519946954659,
+              7.951493848959
+            ]
+          },
+          "rmse": {
+            "value": 7.212812998937632,
+            "ci": [
+              2.7286740663491713,
+              10.085874238448266
+            ]
+          },
+          "mape": {
+            "value": 38.32834401950425,
+            "ci": [
+              17.114465394509512,
+              63.96280011675523
+            ]
+          },
+          "pearson_r": {
+            "value": -0.3099375732564226,
+            "ci": [
+              -0.7613423813747066,
+              0.3437450854317865
+            ]
+          },
+          "success_rate": {
+            "value": 0.5,
+            "ci": [
+              0.18181818181818182,
+              0.8333333333333334
+            ]
+          },
+          "snr_db": {
+            "value": 2.905190154909917,
+            "ci": [
+              -2.512302955403854,
+              8.093210514358702
+            ]
+          }
+        },
+        "M3": {
+          "n_windows": 248,
+          "n_subjects": 42,
+          "coverage": 1.0,
+          "mae": {
+            "value": 2.6375735394746065,
+            "ci": [
+              0.962840789538846,
+              5.053270883310134
+            ]
+          },
+          "rmse": {
+            "value": 9.582130489748362,
+            "ci": [
+              3.5465814835085974,
+              14.489460378046672
+            ]
+          },
+          "mape": {
+            "value": 2.831654308769111,
+            "ci": [
+              1.0206034785780416,
+              5.250105569258523
+            ]
+          },
+          "pearson_r": {
+            "value": 0.8774780848118792,
+            "ci": [
+              0.749281985380711,
+              0.9801058809785099
+            ]
+          },
+          "success_rate": {
+            "value": 0.9354838709677419,
+            "ci": [
+              0.8759875502008032,
+              0.98
+            ]
+          },
+          "snr_db": {
+            "value": 7.550688140357193,
+            "ci": [
+              6.3513023617773445,
+              8.647403053097934
+            ]
+          }
+        }
+      },
+      "excluded_windows": {
+        "M1": {
+          "no_reference": 69
+        },
+        "M2": {
+          "no_reference": 69
+        }
+      }
+    },
+    "without_timestamp_flags": {
+      "n_removed": 14,
+      "n_videos": 28,
+      "per_measure": {
+        "M1": {
+          "n_windows": 9,
+          "n_subjects": 7,
+          "coverage": 1.0,
+          "mae": {
+            "value": 10.197432859725513,
+            "ci": [
+              6.332365657660253,
+              15.393056592722287
+            ]
+          },
+          "rmse": {
+            "value": 12.585567516163422,
+            "ci": [
+              9.075180102872457,
+              16.410019549100042
+            ]
+          },
+          "mape": {
+            "value": 123.26799318127419,
+            "ci": [
+              65.64310032852048,
+              209.6813090990373
+            ]
+          },
+          "pearson_r": {
+            "value": 0.1702549901560371,
+            "ci": [
+              -0.789201228892354,
+              0.4492052830497123
+            ]
+          },
+          "success_rate": {
+            "value": 0.3333333333333333,
+            "ci": [
+              0.125,
+              0.5555555555555556
+            ]
+          },
+          "snr_db": {
+            "value": 2.2591180421746935,
+            "ci": [
+              -3.419240486384378,
+              7.240935382509272
+            ]
+          }
+        },
+        "M2": {
+          "n_windows": 9,
+          "n_subjects": 7,
+          "coverage": 1.0,
+          "mae": {
+            "value": 5.016271378589472,
+            "ci": [
+              1.4825015581966912,
+              8.767458452746528
+            ]
+          },
+          "rmse": {
+            "value": 7.455156699628545,
+            "ci": [
+              1.9349326357276913,
+              10.807394081195627
+            ]
+          },
+          "mape": {
+            "value": 44.66718551330441,
+            "ci": [
+              18.40736190828302,
+              78.12247188159387
+            ]
+          },
+          "pearson_r": {
+            "value": -0.4653042528837456,
+            "ci": [
+              -0.9191669888920198,
+              -0.00813725817296858
+            ]
+          },
+          "success_rate": {
+            "value": 0.4444444444444444,
+            "ci": [
+              0.1,
+              0.8181818181818182
+            ]
+          },
+          "snr_db": {
+            "value": 3.2580410316495594,
+            "ci": [
+              -2.8892926983064107,
+              9.168301067002234
+            ]
+          }
+        },
+        "M3": {
+          "n_windows": 168,
+          "n_subjects": 28,
+          "coverage": 1.0,
+          "mae": {
+            "value": 3.4820929697377374,
+            "ci": [
+              0.9108129720495237,
+              6.77525147728996
+            ]
+          },
+          "rmse": {
+            "value": 11.514528553862977,
+            "ci": [
+              3.639024057580475,
+              17.148749102944564
+            ]
+          },
+          "mape": {
+            "value": 3.7494671610399015,
+            "ci": [
+              1.0134952120441787,
+              7.148946858672022
+            ]
+          },
+          "pearson_r": {
+            "value": 0.821977537620972,
+            "ci": [
+              0.6437411543479593,
+              0.9776837308342986
+            ]
+          },
+          "success_rate": {
+            "value": 0.9166666666666666,
+            "ci": [
+              0.8333333333333334,
+              0.9821428571428571
+            ]
+          },
+          "snr_db": {
+            "value": 6.988624313964416,
+            "ci": [
+              5.358660080157483,
+              8.408772053135438
+            ]
+          }
+        }
+      },
+      "excluded_windows": {
+        "M1": {
+          "no_reference": 47
+        },
+        "M2": {
+          "no_reference": 47
+        }
+      }
+    },
+    "without_low_fps": {
+      "n_removed": 3,
+      "n_videos": 39,
+      "per_measure": {
+        "M1": {
+          "n_windows": 11,
+          "n_subjects": 9,
+          "coverage": 1.0,
+          "mae": {
+            "value": 10.014533611769016,
+            "ci": [
+              6.204410597830432,
+              14.385946608673228
+            ]
+          },
+          "rmse": {
+            "value": 12.539863673191263,
+            "ci": [
+              9.399674248419068,
+              15.610024361615995
+            ]
+          },
+          "mape": {
+            "value": 120.75207478668757,
+            "ci": [
+              64.51529658446924,
+              190.98777855442032
+            ]
+          },
+          "pearson_r": {
+            "value": 0.09658570755135576,
+            "ci": [
+              -0.634527241115011,
+              0.35513338319389626
+            ]
+          },
+          "success_rate": {
+            "value": 0.36363636363636365,
+            "ci": [
+              0.1111111111111111,
+              0.5837499999999978
+            ]
+          },
+          "snr_db": {
+            "value": 2.6253941586105154,
+            "ci": [
+              -2.760433302739186,
+              7.2745886395542785
+            ]
+          }
+        },
+        "M2": {
+          "n_windows": 11,
+          "n_subjects": 9,
+          "coverage": 1.0,
+          "mae": {
+            "value": 4.180953077924522,
+            "ci": [
+              1.1469871501059385,
+              7.58334253826738
+            ]
+          },
+          "rmse": {
+            "value": 6.804911329894018,
+            "ci": [
+              1.7303178236768955,
+              10.040116899617916
+            ]
+          },
+          "mape": {
+            "value": 29.254166336622152,
+            "ci": [
+              12.832176828967333,
+              45.7551633168474
+            ]
+          },
+          "pearson_r": {
+            "value": -0.34723033544576715,
+            "ci": [
+              -0.8694864447662571,
+              0.5985454399092621
+            ]
+          },
+          "success_rate": {
+            "value": 0.5454545454545454,
+            "ci": [
+              0.2,
+              0.9
+            ]
+          },
+          "snr_db": {
+            "value": 3.280276525584509,
+            "ci": [
+              -2.461916307409858,
+              8.746172934337295
+            ]
+          }
+        },
+        "M3": {
+          "n_windows": 230,
+          "n_subjects": 39,
+          "coverage": 1.0,
+          "mae": {
+            "value": 2.771860727243093,
+            "ci": [
+              0.9248741970807147,
+              5.253401468841149
+            ]
+          },
+          "rmse": {
+            "value": 9.939401411777837,
+            "ci": [
+              3.783698681313164,
+              14.887408656932198
+            ]
+          },
+          "mape": {
+            "value": 2.9617261203851104,
+            "ci": [
+              1.0214363822904127,
+              5.482677375414429
+            ]
+          },
+          "pearson_r": {
+            "value": 0.8725512035520538,
+            "ci": [
+              0.7426665809740386,
+              0.9792129102317286
+            ]
+          },
+          "success_rate": {
+            "value": 0.9347826086956522,
+            "ci": [
+              0.8771794574542082,
+              0.9825346497057148
+            ]
+          },
+          "snr_db": {
+            "value": 7.661134610857166,
+            "ci": [
+              6.438655469824896,
+              8.793427532397656
+            ]
+          }
+        }
+      },
+      "excluded_windows": {
+        "M1": {
+          "no_reference": 64
+        },
+        "M2": {
+          "no_reference": 64
+        }
+      }
+    }
+  },
+  "errors": [],
+  "reference_reliability": {
+    "breathing": {
+      "measure": "M1",
+      "n_windows": 81,
+      "n_subjects": 42,
+      "estimate_available": {
+        "bw": {
+          "count": 81,
+          "n": 81,
+          "value": 1.0
+        },
+        "am": {
+          "count": 81,
+          "n": 81,
+          "value": 1.0
+        },
+        "fm": {
+          "count": 81,
+          "n": 81,
+          "value": 1.0
+        }
+      },
+      "usable": {
+        "count": 12,
+        "n": 81,
+        "value": 0.14814814814814814,
+        "ci": [
+          0.06248070987654324,
+          0.2345679012345679
+        ]
+      },
+      "usable_wide": {
+        "count": 33,
+        "n": 81,
+        "value": 0.4074074074074074,
+        "ci": [
+          0.27848101265822783,
+          0.5365853658536586
+        ]
+      },
+      "spread_bpm": [
+        0.24625925825546613,
+        5.202162428199378,
+        8.765240488717353,
+        14.791976044427312,
+        27.50108012567311
+      ],
+      "pairwise": {
+        "bw-am": {
+          "abs_diff_bpm": [
+            0.03181901077128657,
+            0.7033930980497995,
+            2.676937058015639,
+            9.078611770882475,
+            24.016778136179838
+          ],
+          "within_agreement": {
+            "count": 35,
+            "n": 81,
+            "value": 0.43209876543209874
+          }
+        },
+        "bw-fm": {
+          "abs_diff_bpm": [
+            0.03392002354044443,
+            0.9804296734327913,
+            4.798917423869781,
+            10.984862731819076,
+            24.202148749918276
+          ],
+          "within_agreement": {
+            "count": 28,
+            "n": 81,
+            "value": 0.345679012345679
+          }
+        },
+        "am-fm": {
+          "abs_diff_bpm": [
+            0.0083584290240033,
+            1.1300883965130382,
+            5.770856048757258,
+            10.187996015563577,
+            27.50108012567311
+          ],
+          "within_agreement": {
+            "count": 26,
+            "n": 81,
+            "value": 0.32098765432098764
+          }
+        }
+      },
+      "beats_per_window": [
+        28.0,
+        43.0,
+        49.0,
+        55.0,
+        65.0
+      ]
+    },
+    "heart": {
+      "measure": "M3",
+      "n_windows": 248,
+      "reference_available": {
+        "count": 248,
+        "n": 248,
+        "value": 1.0
+      },
+      "ppg_snr_db": [
+        -2.4199515857339167,
+        9.242851876235537,
+        12.304568446591404,
+        15.45750696525008,
+        22.563457478174772
+      ],
+      "oximeter_valid_frac": [
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "oximeter_vs_ppg": {
+        "n_windows": 245,
+        "abs_diff_bpm": [
+          0.00024402307213478025,
+          0.9862491359035914,
+          2.0741609944087998,
+          4.593027738552749,
+          30.410615334342125
+        ],
+        "within_tolerance": {
+          "count": 193,
+          "n": 245,
+          "value": 0.7877551020408163
+        }
+      }
+    }
+  },
+  "subjects": [
+    {
+      "subject": "DATASET_2/subject1",
+      "fps": 29.264106,
+      "n_frames": 1547,
+      "large_gap": false,
+      "duplicates": true,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 9.72750370501567,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 1
+    },
+    {
+      "subject": "DATASET_2/subject3",
+      "fps": 29.548271,
+      "n_frames": 1801,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 7.219237167688124,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject4",
+      "fps": 29.609362,
+      "n_frames": 1368,
+      "large_gap": false,
+      "duplicates": true,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 6.447508334764878,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 1
+    },
+    {
+      "subject": "DATASET_2/subject5",
+      "fps": 29.661806,
+      "n_frames": 1550,
+      "large_gap": false,
+      "duplicates": true,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 11.687892554567586,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 1,
+      "breathing_windows": 1
+    },
+    {
+      "subject": "DATASET_2/subject8",
+      "fps": 29.888441,
+      "n_frames": 2022,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 13.67489041859485,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject9",
+      "fps": 29.539667,
+      "n_frames": 2016,
+      "large_gap": true,
+      "duplicates": true,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 11.94858701476361,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject10",
+      "fps": 29.875482,
+      "n_frames": 2024,
+      "large_gap": false,
+      "duplicates": true,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 12.654994263839916,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject11",
+      "fps": 29.700708,
+      "n_frames": 2031,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 10.68215179256053,
+      "oximeter_valid_frac_mean": 0.7654320987654321,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject12",
+      "fps": 29.029684,
+      "n_frames": 1989,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 11.443982961643778,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject13",
+      "fps": 29.7903,
+      "n_frames": 2018,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 12.600057525735156,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject14",
+      "fps": 29.371997,
+      "n_frames": 1993,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 5.842870594434482,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject15",
+      "fps": 29.590537,
+      "n_frames": 2020,
+      "large_gap": true,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 16.974419954152715,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject16",
+      "fps": 29.931836,
+      "n_frames": 2050,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 13.852985408467902,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 2,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject17",
+      "fps": 29.932847,
+      "n_frames": 2046,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 14.785820163405274,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject18",
+      "fps": 29.747793,
+      "n_frames": 2034,
+      "large_gap": false,
+      "duplicates": true,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 17.146501392619065,
+      "oximeter_valid_frac_mean": 0.8601055295686169,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject20",
+      "fps": 29.505479,
+      "n_frames": 2016,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 10.662304108160738,
+      "oximeter_valid_frac_mean": 0.4180790960451977,
+      "breathing_usable": 1,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject22",
+      "fps": 29.750671,
+      "n_frames": 2032,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 11.191191816987843,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject23",
+      "fps": 28.935568,
+      "n_frames": 1958,
+      "large_gap": true,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 12.978333509136426,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 1,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject24",
+      "fps": 29.368114,
+      "n_frames": 2009,
+      "large_gap": true,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 13.162183554856973,
+      "oximeter_valid_frac_mean": 0.812358276643991,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject25",
+      "fps": 23.206781,
+      "n_frames": 1448,
+      "large_gap": true,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 17.12503990243473,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject26",
+      "fps": 23.34319,
+      "n_frames": 1485,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 15.849726163865839,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject27",
+      "fps": 23.36482,
+      "n_frames": 1431,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 10.028600937698553,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 1,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject30",
+      "fps": 29.782047,
+      "n_frames": 2028,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 12.935265676887083,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject31",
+      "fps": 29.61737,
+      "n_frames": 2027,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 12.577331128420981,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject32",
+      "fps": 29.848606,
+      "n_frames": 2033,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 10.982050265450631,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 2,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject33",
+      "fps": 29.214989,
+      "n_frames": 1999,
+      "large_gap": true,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 8.765490026633783,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject34",
+      "fps": 29.975691,
+      "n_frames": 2035,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 12.31015450856467,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 1,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject35",
+      "fps": 29.906009,
+      "n_frames": 2051,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 14.799497720278081,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject36",
+      "fps": 29.906621,
+      "n_frames": 2052,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 16.682600165630774,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 1,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject37",
+      "fps": 29.790706,
+      "n_frames": 2032,
+      "large_gap": false,
+      "duplicates": true,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 11.893409459445229,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject38",
+      "fps": 29.91989,
+      "n_frames": 2050,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 15.569123136075913,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject39",
+      "fps": 29.690991,
+      "n_frames": 2037,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 9.642268924147718,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject40",
+      "fps": 29.81839,
+      "n_frames": 2028,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 10.324937533362938,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject41",
+      "fps": 29.755366,
+      "n_frames": 2037,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 11.06384084889633,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 1,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject42",
+      "fps": 29.948009,
+      "n_frames": 2042,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 16.066526236139318,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject43",
+      "fps": 29.342154,
+      "n_frames": 2009,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 8.735252608898321,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject44",
+      "fps": 29.586137,
+      "n_frames": 2017,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 9.352607391254157,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject45",
+      "fps": 29.950633,
+      "n_frames": 2032,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 12.382255174488392,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject46",
+      "fps": 29.245634,
+      "n_frames": 1991,
+      "large_gap": false,
+      "duplicates": true,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 15.315936721024888,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject47",
+      "fps": 29.789803,
+      "n_frames": 2023,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 13.219259405723887,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject48",
+      "fps": 28.768204,
+      "n_frames": 1956,
+      "large_gap": false,
+      "duplicates": false,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 8.827647319234313,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 0,
+      "breathing_windows": 2
+    },
+    {
+      "subject": "DATASET_2/subject49",
+      "fps": 29.778838,
+      "n_frames": 2034,
+      "large_gap": false,
+      "duplicates": true,
+      "shoulder_source": "pose",
+      "ppg_snr_db_median": 16.641759961467024,
+      "oximeter_valid_frac_mean": 1.0,
+      "breathing_usable": 1,
+      "breathing_windows": 2
+    }
+  ]
+}
