@@ -1,0 +1,20 @@
+{
+  "counts": {
+    "videos": 0,
+    "versions_measured": 0,
+    "errors": 0,
+    "settings": 84
+  },
+  "per_setting": {},
+  "paired_vs_source": {},
+  "breakdown": {},
+  "excluded_windows_source": {},
+  "relocated_minus_fixed": {},
+  "sensitivity_breakdown": {},
+  "timing": {
+    "median_seconds_per_setting": {},
+    "seconds_per_video": []
+  },
+  "encoded_versions_with_more_than_one_keyframe": 0,
+  "errors": []
+}
