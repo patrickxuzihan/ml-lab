@@ -928,3 +928,4 @@
 {"id": "DATASET_2/subject5/source", "status": "error", "video": "DATASET_2/subject5", "subject": "DATASET_2/subject5", "setting": "source", "error": "OSError: [Errno 5] Input/output error"}
 {"id": "DATASET_2/subject8/source", "status": "error", "video": "DATASET_2/subject8", "subject": "DATASET_2/subject8", "setting": "source", "error": "OSError: [Errno 5] Input/output error"}
 {"id": "DATASET_2/subject9/source", "status": "error", "video": "DATASET_2/subject9", "subject": "DATASET_2/subject9", "setting": "source", "error": "OSError: [Errno 5] Input/output error"}
+{"id": "DATASET_2/subject48/source", "status": "error", "video": "DATASET_2/subject48", "subject": "DATASET_2/subject48", "setting": "source", "error": "OSError: [Errno 5] Input/output error"}
