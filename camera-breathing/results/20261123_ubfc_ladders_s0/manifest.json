@@ -346,6 +346,48 @@
         "1"
       ],
       "jobs": 2
+    },
+    {
+      "started_utc": "2026-11-24T04:27:57+00:00",
+      "git": {
+        "commit": "ed1064ee59a980c091be8c1df5d6c4beaeab8b7f",
+        "dirty": false
+      },
+      "python": "3.13.18",
+      "packages": {
+        "numpy": "2.4.6",
+        "scipy": "1.16.3",
+        "h5py": "3.14.0",
+        "PyYAML": "6.0.3",
+        "mediapipe": "1.2.3",
+        "opencv-contrib-python": "4.14.0.94"
+      },
+      "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+      "ffprobe": "ffprobe version 6.1.1-3ubuntu5 Copyright (c) 2007-2023 the FFmpeg developers",
+      "hardware": {
+        "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "cpu_count": 2,
+        "memory_bytes": 13605818368,
+        "gpus": []
+      },
+      "pose_model": {
+        "file": "pose_landmarker_full.task",
+        "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+      },
+      "argv": [
+        "--config",
+        "configs/ladders_ubfc.yaml",
+        "--run-id",
+        "20261123_ubfc_ladders_s0",
+        "--results-root",
+        "/content/drive/MyDrive/camera-breathing/results",
+        "--work-dir",
+        "/content/work",
+        "--jobs",
+        "2"
+      ],
+      "jobs": 2
     }
   ]
 }
