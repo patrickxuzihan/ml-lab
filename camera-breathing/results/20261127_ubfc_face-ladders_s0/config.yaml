@@ -1,0 +1,134 @@
+experiment:
+  dataset: ubfc
+  source: /content/drive/MyDrive/UBFC_DATASET
+  pose_model_url: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task
+  sensitivity:
+    min_fps: 25.0
+    wide_reference_max_std_bpm: 4.0
+  dataset_config: baseline_ubfc.yaml
+  framing: face
+  measures:
+  - M2
+  - M3
+  - M4
+  ladders:
+  - crf
+  - bitrate
+  relocate: []
+  n_videos: null
+protocol:
+  version: 2
+  regions:
+    pose_sample_fps: 2.0
+    visibility_threshold: 0.5
+    min_shoulder_frac: 0.5
+    face_only:
+      above_eyes: 1.0
+      below_mouth: 0.5
+      shoulder_margin: 0.1
+  measurements:
+    M1:
+      kind: breathing
+      signal: motion
+      region: shoulder
+      band_hz:
+      - 0.1
+      - 0.7
+      window_s: 30.0
+    M2:
+      kind: breathing
+      signal: color
+      region: face
+      band_hz:
+      - 0.1
+      - 0.7
+      window_s: 30.0
+      pos_window_s: null
+    M3:
+      kind: heart
+      signal: color
+      region: face
+      band_hz:
+      - 0.7
+      - 3.0
+      window_s: 10.0
+      pos_window_s: 1.6
+    M4:
+      kind: breathing
+      signal: motion
+      region: head
+      band_hz:
+      - 0.1
+      - 0.7
+      window_s: 30.0
+  rate:
+    filter_order: 2
+    min_nfft: 4096
+    max_nyquist_frac: 0.95
+    snr_half_width_bins: 2.0
+  tolerance_bpm:
+    breathing: 2.0
+    heart: 5.0
+  reference:
+    ppg_respiration:
+      resample_hz: 4.0
+      agreement_bpm: 2.0
+      beat_band_hz:
+      - 0.5
+      - 5.0
+      max_heart_bpm: 180.0
+    oximeter_min_valid_bpm: 30.0
+    ubfc_gap_flag_s: 0.5
+  statistics:
+    bootstrap_samples: 2000
+    ci: 0.95
+    seed: 0
+  breakdown:
+    drop_pp: 10.0
+  compression:
+    pix_fmt: yuv420p
+    preset: medium
+    gop_frames: 100000
+    scale_flags: area
+    threads: 1
+    vbv_buffer_s: 1.0
+    ladders:
+      crf:
+        codecs:
+        - libx264
+        - libx265
+        crf:
+        - 0
+        - 18
+        - 23
+        - 28
+        - 33
+        - 38
+        - 43
+      bitrate:
+        codecs:
+        - libx264
+        - libx265
+        kbps:
+        - 2000
+        - 1000
+        - 500
+        - 250
+        - 125
+      allocation:
+        codecs:
+        - libx264
+        - libx265
+        kbps:
+        - 500
+        - 250
+        - 125
+        decimate:
+        - 1
+        - 2
+        - 3
+        - 6
+        scale:
+        - 1
+        - 2
+        - 4

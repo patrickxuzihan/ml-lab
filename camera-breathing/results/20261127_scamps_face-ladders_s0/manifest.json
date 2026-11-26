@@ -1,0 +1,49 @@
+{
+  "run_id": "20261127_scamps_face-ladders_s0",
+  "sessions": [
+    {
+      "started_utc": "2026-11-26T04:50:52+00:00",
+      "git": {
+        "commit": "def00caa32c08b097c93dbf3b580d1f5eb8849fc",
+        "dirty": false
+      },
+      "python": "3.13.18",
+      "packages": {
+        "numpy": "2.4.6",
+        "scipy": "1.16.3",
+        "h5py": "3.14.0",
+        "PyYAML": "6.0.3",
+        "mediapipe": "1.2.3",
+        "opencv-contrib-python": "4.14.0.94"
+      },
+      "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+      "ffprobe": "ffprobe version 6.1.1-3ubuntu5 Copyright (c) 2007-2023 the FFmpeg developers",
+      "hardware": {
+        "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "cpu_count": 8,
+        "memory_bytes": 54750392320,
+        "gpus": []
+      },
+      "pose_model": {
+        "file": "pose_landmarker_full.task",
+        "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+      },
+      "argv": [
+        "--config",
+        "configs/face_ladders_scamps.yaml",
+        "--run-id",
+        "20261127_scamps_face-ladders_s0",
+        "--results-root",
+        "/content/drive/MyDrive/camera-breathing/results",
+        "--work-dir",
+        "/content/work",
+        "--jobs",
+        "8",
+        "--limit",
+        "1"
+      ],
+      "jobs": 8
+    }
+  ]
+}

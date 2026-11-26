@@ -1,0 +1,49 @@
+{
+  "splits": {
+    "test": {
+      "expected": 100,
+      "videos": 2,
+      "head_still": 2,
+      "versions": 50,
+      "errors": 0,
+      "bytes": 49617600,
+      "crop_side_px": {
+        "min": 168,
+        "median": 171.0,
+        "max": 174
+      }
+    },
+    "validation": {
+      "expected": 100,
+      "videos": 0,
+      "head_still": 0,
+      "versions": 0,
+      "errors": 0,
+      "bytes": 0,
+      "crop_side_px": {
+        "min": null,
+        "median": null,
+        "max": null
+      }
+    },
+    "train": {
+      "expected": 2600,
+      "videos": 0,
+      "head_still": 0,
+      "versions": 0,
+      "errors": 0,
+      "bytes": 0,
+      "crop_side_px": {
+        "min": null,
+        "median": null,
+        "max": null
+      }
+    }
+  },
+  "random_versions_drawn": {},
+  "seconds_per_video": {
+    "median": 119.7815,
+    "total": 239.563
+  },
+  "errors": []
+}
