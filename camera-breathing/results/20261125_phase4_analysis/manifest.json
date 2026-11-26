@@ -1,0 +1,31 @@
+{
+  "started_utc": "2026-11-25T02:23:49+00:00",
+  "git": {
+    "commit": "a0bf92757dbddf38bff1e00453743bb9f0601e0d",
+    "dirty": false
+  },
+  "python": "3.13.18",
+  "packages": {
+    "numpy": "2.5.5",
+    "scipy": "1.18.1",
+    "h5py": "3.16.0",
+    "PyYAML": "6.0.4",
+    "mediapipe": "1.2.3",
+    "opencv-contrib-python": "5.1.0.95"
+  },
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "ffprobe": "ffprobe version 6.1.1-3ubuntu5 Copyright (c) 2007-2023 the FFmpeg developers",
+  "hardware": {
+    "platform": "Linux-6.18.44-fc-v880-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "memory_bytes": 16868675584,
+    "gpus": []
+  },
+  "inputs": [
+    "20261123_scamps_ladders_s0",
+    "20261123_ubfc_ladders_s0",
+    "20261123_scamps_allocation_s0",
+    "20261123_ubfc_allocation_s0"
+  ]
+}
