@@ -281,6 +281,10 @@ def face_archive(tmp_path, n_members):
     return archive, frames
 
 
+# numpy and scipy start idle OpenBLAS thread pools when they are imported, so Python warns
+# that the process forking the workers is multi-threaded. The workers are forked before the
+# main process does any numerical work, and the test checks their output.
+@pytest.mark.filterwarnings("ignore:This process .* is multi-threaded:DeprecationWarning")
 def test_training_data_splits_versions_and_resume(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setattr(data_script, "make_pose", counting_pose(FACE_SPEC, calls))
