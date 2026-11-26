@@ -16,7 +16,7 @@ import io
 import shutil
 import tarfile
 import urllib.request
-from collections.abc import Iterator
+from collections.abc import Container, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
@@ -136,7 +136,7 @@ def open_source(source: str):
 
 
 def iter_tar_members(
-    source: str, work_dir: str | Path, suffix: str = ".mat", skip: set[str] | None = None
+    source: str, work_dir: str | Path, suffix: str = ".mat", skip: Container[str] | None = None
 ) -> Iterator[tuple[str, Path]]:
     """Stream a tar.gz and yield (member name, local path) one file at a time.
 
@@ -144,7 +144,7 @@ def iter_tar_members(
     Members in `skip` are read past without being written. Member paths are reduced to their
     file name, so an archive cannot write outside work_dir.
     """
-    skip = skip or set()
+    skip = set() if skip is None else skip
     work_dir = Path(work_dir)
     work_dir.mkdir(parents=True, exist_ok=True)
     with open_source(source) as stream, tarfile.open(fileobj=stream, mode="r|*") as tar:

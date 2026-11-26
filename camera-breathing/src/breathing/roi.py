@@ -243,6 +243,88 @@ def measurement_regions(
     return boxes, info
 
 
+# ---------------------------------------------------------------------------------------
+# Face-only framing (phase 5)
+
+
+def head_box(med: np.ndarray, width: int, height: int) -> Box | None:
+    """The head box of the phase-1 probe (probe_regions): from 0.8 face widths above to 0.6
+    below the mean height of the face landmarks, across their horizontal span plus 0.2 face
+    widths each side. Unlike the probe, the face width has no floor of 0.2 shoulder widths:
+    a face-only video may show no shoulders. Hair, forehead, eyes and the face's outline give
+    the motion estimate texture to work on."""
+    face = med[list(FACE), :2] * [width, height]
+    fx0, fx1 = np.nanmin(face[:, 0]), np.nanmax(face[:, 0])
+    fy = np.nanmean(face[:, 1])
+    if not np.all(np.isfinite([fx0, fx1, fy])):
+        return None
+    fw = fx1 - fx0
+    return _clip_box(fy - 0.8 * fw, fy + 0.6 * fw, fx0 - 0.2 * fw, fx1 + 0.2 * fw, height, width)
+
+
+def face_only_regions(
+    landmarks: np.ndarray,
+    width: int,
+    height: int,
+    threshold: float,
+    min_shoulder_frac: float,
+    cfg: dict,
+) -> tuple[Box | None, dict[str, Box | None], dict]:
+    """A square crop of the head that simulates face-only framing, and the regions inside it.
+
+    From the median face landmarks (frames with the nose visible): the crop spans from
+    cfg["above_eyes"] face widths above the eye line to cfg["below_mouth"] below the mouth
+    line. When the shoulders are visible it ends at least cfg["shoulder_margin"] face widths
+    above the top of the M1 shoulder band, so no shoulder or collar is in view. The crop is
+    anchored at its bottom edge: if it does not fit, the top of the head is cut, never the
+    rule above. It is centered on the face horizontally and its side is even (4:2:0).
+    Returns (crop, boxes, info), the boxes ("head" for M4, "face" for M2/M3) in crop
+    coordinates.
+    """
+    n = landmarks.shape[0]
+    face_seen = visible(landmarks, NOSE, threshold)
+    shoulders = visible(landmarks, LEFT_SHOULDER, threshold) & visible(
+        landmarks, RIGHT_SHOULDER, threshold
+    )
+    info = {
+        "n_sampled": int(n),
+        "face_visible_frac": float(face_seen.mean()) if n else 0.0,
+        "shoulders_visible_frac": float(shoulders.mean()) if n else 0.0,
+    }
+    nothing: dict[str, Box | None] = {"head": None, "face": None}
+    if not face_seen.any():
+        return None, nothing, {**info, "crop_source": "none"}
+    med = np.full((N_LANDMARKS, 3), np.nan)
+    med[list(FACE)] = np.nanmedian(landmarks[face_seen][:, list(FACE)], axis=0)
+    face = med[list(FACE), :2] * [width, height]
+    fx0, fx1 = np.nanmin(face[:, 0]), np.nanmax(face[:, 0])
+    eye_y = float(np.mean(med[list(EYES), 1])) * height
+    mouth_y = float(np.mean(med[list(MOUTH), 1])) * height
+    fw = fx1 - fx0
+    if not np.all(np.isfinite([fx0, fx1, eye_y, mouth_y])) or fw <= 0:
+        return None, nothing, {**info, "crop_source": "none"}
+    top = max(eye_y - cfg["above_eyes"] * fw, 0.0)
+    bottom = min(mouth_y + cfg["below_mouth"] * fw, float(height))
+    if n and shoulders.mean() >= min_shoulder_frac:
+        pair = [LEFT_SHOULDER, RIGHT_SHOULDER]
+        med_sh = np.full((N_LANDMARKS, 3), np.nan)
+        med_sh[pair] = np.median(landmarks[shoulders][:, pair], axis=0)
+        band = _shoulder_band(med_sh, width, height)
+        if band is not None:
+            bottom = min(bottom, band[0] - cfg["shoulder_margin"] * fw)
+    side = int(min(bottom - top, width)) // 2 * 2
+    if side < 16:
+        return None, nothing, {**info, "crop_source": "none"}
+    row1 = int(np.floor(bottom))
+    left = int(round(np.clip((fx0 + fx1) / 2 - side / 2, 0, width - side)))
+    crop = (row1 - side, row1, left, left + side)
+    local = med.copy()
+    local[:, 0] = (med[:, 0] * width - left) / side
+    local[:, 1] = (med[:, 1] * height - crop[0]) / side
+    boxes = {"head": head_box(local, side, side), "face": face_box(local, side, side)}
+    return crop, boxes, {**info, "crop_source": "pose", "face_width_px": float(fw)}
+
+
 def scale_box(box: Box | None, src_hw: tuple[int, int], dst_hw: tuple[int, int]) -> Box | None:
     """Map a box from a source frame size to a resized frame, keeping its full extent."""
     if box is None:
