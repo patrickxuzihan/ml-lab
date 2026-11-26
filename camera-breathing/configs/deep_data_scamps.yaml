@@ -1,0 +1,27 @@
+# Phase-5 model inputs from SCAMPS (synthetic; research use only, R-UDA licence): the face-only
+# crop of every video in three splits, in several compressed versions, downscaled for the deep
+# model (scripts/make_training_data.py). SCAMPS-derived data: written under --data-root on
+# Drive, never into git. Dataset location, frame rate, label keys, head-pose keys and pose
+# model come from dataset_config (the phase-3 config).
+dataset_config: baseline_scamps.yaml
+model_input:
+  size: 64  # frames downscaled to size x size by area averaging
+  fps: 10.0  # and averaged over 1/fps intervals; the labels are resampled the same way
+# Archive members by number (P000001 is 1), inclusive. The test videos are the 100 videos of
+# phases 3 and 4 (the first 100 head-still videos of the archive are P000001-P000100:
+# results/20261122_scamps_baseline_s0); no other split overlaps them.
+splits:
+  test: {first: 1, last: 100, versions: fixed}
+  validation: {first: 101, last: 200, versions: fixed}
+  train: {first: 201, last: 2800, versions: random}
+# Fixed versions (test, validation): the source and every rung of these ladders, the settings
+# of the face-only classic experiment (configs/face_ladders_scamps.yaml).
+fixed_ladders: [crf, bitrate]
+# Random versions (train): the source plus, for each group, n settings drawn without
+# replacement from the lossy settings of its ladders (model_input.augmentation_pools). The
+# draw depends only on the seed and the video, so a resumed run makes the same versions.
+augmentation:
+  seed: 0
+  groups:
+    - {ladders: [crf, bitrate], n: 5}  # storage and video-call rungs
+    - {ladders: [allocation], n: 3}  # video-call bitrates after decimation and downscaling
