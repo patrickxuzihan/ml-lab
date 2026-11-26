@@ -132,6 +132,12 @@ class RunDir:
         else:
             self.config_path.write_text(yaml.safe_dump(config, sort_keys=False))
 
+    def saved_config(self) -> dict | None:
+        """The config the run was created with, or None for a new run."""
+        if not self.config_path.exists():
+            return None
+        return yaml.safe_load(self.config_path.read_text())
+
     def add_session(self, snapshot: dict) -> None:
         manifest = {"run_id": self.run_id, "sessions": []}
         if self.manifest_path.exists():

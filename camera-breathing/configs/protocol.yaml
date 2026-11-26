@@ -1,7 +1,9 @@
 # Evaluation protocol (GUIDE.md section 4.4), shared by every experiment. Changing anything
 # here invalidates earlier results (CLAUDE.md rule 6): record the change in notes/ and re-run
 # the affected experiments. The reasons for each choice are in notes/02-protocol.md.
-version: 1
+# Version 2 (phase 5) adds M4 and the face-only framing; M1-M3 and everything they use are
+# unchanged, so version-1 results stay valid (notes/02-protocol.md section 11).
+version: 2
 
 regions:
   # Regions are found once, on the uncompressed source, from MediaPipe pose landmarks sampled
@@ -11,6 +13,13 @@ regions:
   # Below this fraction of sampled frames with both shoulders visible, the shoulder band is
   # anchored to the face instead (marked "face_anchored").
   min_shoulder_frac: 0.5
+  # Face-only framing (phase 5): a square crop of the head, found from the same median
+  # landmarks, simulates a video that shows only the face. Sizes are in face widths (the
+  # horizontal span of the face landmarks, ears included).
+  face_only:
+    above_eyes: 1.0  # top of the crop above the eye line
+    below_mouth: 0.5  # bottom of the crop below the mouth line
+    shoulder_margin: 0.1  # with shoulders in view, the crop ends this far above M1's shoulder band
 
 measurements:
   M1:  # breathing from the vertical motion of the shoulder band
@@ -33,6 +42,12 @@ measurements:
     band_hz: [0.7, 3.0]
     window_s: 10.0
     pos_window_s: 1.6
+  M4:  # breathing from the vertical motion of the head (phase 5, for face-only video)
+    kind: breathing
+    signal: motion
+    region: head
+    band_hz: [0.1, 0.7]
+    window_s: 30.0
 
 rate:
   # Per window: linear detrend, zero-phase Butterworth band-pass, Hann-windowed periodogram

@@ -76,7 +76,8 @@ def test_head_pose_selection_and_whole_windows():
     assert still == {"d_pitch": 0.0, "d_yaw": 0.0} and baseline.head_is_still(still, 1e-6)
     moving = baseline.value_ranges({"d_yaw": np.linspace(-10, 10, 600)})
     assert not baseline.head_is_still(moving, 1e-6)
-    assert baseline.whole_windows(68.2, PROTOCOL) == {m: [(0.0, 68.2)] for m in ("M1", "M2", "M3")}
+    whole = baseline.whole_windows(68.2, PROTOCOL)
+    assert whole == {m: [(0.0, 68.2)] for m in ("M1", "M2", "M3")}
     assert baseline.whole_windows(0.0, PROTOCOL)["M1"] == []
 
 

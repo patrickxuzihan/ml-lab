@@ -1,0 +1,13 @@
+# Phase-5 classic baseline on face-only video (SCAMPS test set): each video is cut to its
+# face-only crop (configs/protocol.yaml regions.face_only), and the crop goes through the
+# uncompressed source and the CRF and bitrate ladders. Dataset location, selection rule and
+# pose model come from dataset_config (the phase-3 config).
+dataset_config: baseline_scamps.yaml
+framing: face
+# Head motion (M4) and face color (M2) for breathing, face color (M3) for heart rate. Without
+# shoulders in view there is no M1.
+measures: [M2, M3, M4]
+ladders: [crf, bitrate]
+relocate: []
+# The first n_videos head-still videos of the archive: the 100 test videos of phases 3 and 4.
+n_videos: 100

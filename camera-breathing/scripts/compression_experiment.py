@@ -15,6 +15,11 @@ ladders of configs/protocol.yaml to run:
 
 `--summarize-only` rebuilds metrics.json and summary.md from items.jsonl.
 
+With `framing: face` (phase 5) each source video is first cut to its face-only crop
+(roi.face_only_regions, found with pose on the uncompressed frames); the crop is then
+compressed at its own size and frame rate and measured with the config's `measures`
+(e.g. M2, M3, M4). The crop is recorded with the source's regions.
+
 To keep items.jsonl small, floats are rounded to 3 decimals, the windows of a record are
 stored as lists in the order of WINDOW_FIELDS (`load_records` turns them back into dicts),
 and a record keeps only the setting's name (its codec, CRF, bitrate, decimation and scale
@@ -40,6 +45,7 @@ from breathing.sources import make_pose
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 LADDERS = ("crf", "bitrate", "allocation", "raw")
+FRAMINGS = ("full", "face")
 DIGITS = 3  # floats in items.jsonl are rounded to keep the files small
 WINDOW_FIELDS = ("measure", "window", "t0", "t1", "ref_bpm", "est_bpm", "error_bpm", "snr_db")
 WINDOW_FIELDS += ("excluded",)
@@ -75,7 +81,24 @@ def load_config(path: Path, source: str | None = None) -> dict:
     unknown = set(config["ladders"]) - set(LADDERS)
     if unknown:
         raise SystemExit(f"unknown ladders {sorted(unknown)}; choose from {LADDERS}")
+    if framing(config) not in FRAMINGS:
+        raise SystemExit(f"unknown framing {framing(config)!r}; choose from {FRAMINGS}")
+    if framing(config) == "face" and config.get("relocate"):
+        raise SystemExit("relocate is not supported with face framing")
     return config
+
+
+def framing(config: dict) -> str:
+    return config.get("framing") or "full"
+
+
+def measures_of(config: dict, protocol: dict) -> tuple[str, ...]:
+    """The measurements of the experiment (default: M1-M3, the full-frame ones)."""
+    measures = tuple(config.get("measures") or pipeline.MEASURES)
+    unknown = [m for m in measures if m not in protocol["measurements"]]
+    if unknown:
+        raise SystemExit(f"measures not in the protocol: {unknown}")
+    return measures
 
 
 def experiment_settings(config: dict, protocol: dict) -> list[compression.Setting]:
@@ -173,9 +196,20 @@ def measure_video(
 ) -> int:
     """Measure the remaining settings of one source video; returns how many succeeded."""
     base = {"video": video.id, "subject": video.subject}
+    measures = measures_of(config, protocol)
     try:
-        boxes, region_info, n_frames = known or sources.locate(video, pose, protocol)
-        windows = pipeline.analysis_windows(n_frames / video.fps, protocol)
+        if known is not None:
+            boxes, region_info, n_frames = known
+        elif framing(config) == "face":
+            crop, boxes, region_info, n_frames = sources.locate_face(video, pose, protocol)
+            region_info = {"crop": crop, **region_info}
+        else:
+            boxes, region_info, n_frames = sources.locate(video, pose, protocol)
+        if framing(config) == "face":
+            if region_info.get("crop") is None:
+                raise ValueError("no face found for the face-only crop")
+            video = sources.cropped(video, tuple(region_info["crop"]))
+        windows = pipeline.analysis_windows(n_frames / video.fps, protocol, measures)
         refs, details = video.references(windows, n_frames)
     except Exception as err:  # recorded and retried on the next run
         traceback.print_exc()
@@ -211,6 +245,7 @@ def measure_video(
                 protocol,
                 work_dir / "versions",
                 relocate=relocate if setting.name in relocate_names else None,
+                measures=measures,
             )
         except Exception as err:  # recorded and retried on the next run
             traceback.print_exc()
@@ -373,21 +408,23 @@ def summarize(run: RunDir, config: dict, protocol: dict, settings: list) -> str:
     records = [r for r in load_records(run) if "setting" in r]
     ok = [r for r in records if r["status"] == "ok"]
     errors = [r for r in records if r["status"] != "ok"]
-    agg = pipeline.aggregate(ok, settings, protocol)
+    measures = measures_of(config, protocol)
+    agg = pipeline.aggregate(ok, settings, protocol, measures)
     # Breakdown points exist only for the CRF and bitrate ladders, so the subsets need only
     # those settings.
     ladder_settings = [s for s in settings if s.ladder in ("source", "crf", "bitrate")]
     names = {s.name for s in ladder_settings}
     sensitivity = {}
+    subsets = baseline.sensitivity_subsets(config["dataset"], config)
+    if framing(config) == "face":
+        subsets.pop("without_face_anchored")  # no shoulder band in a face-only crop
     if len(ladder_settings) > 1:
-        for name, keep in baseline.sensitivity_subsets(config["dataset"], config).items():
+        for name, keep in subsets.items():
             kept = {r["video"] for r in _source_records(ok) if keep(r)}
             subset = [r for r in ok if r["video"] in kept and r["setting"] in names]
             removed = len({r["video"] for r in ok}) - len(kept)
-            sensitivity[name] = {
-                "n_removed": removed,
-                "breakdown": pipeline.aggregate(subset, ladder_settings, protocol)["breakdown"],
-            }
+            agg_subset = pipeline.aggregate(subset, ladder_settings, protocol, measures)
+            sensitivity[name] = {"n_removed": removed, "breakdown": agg_subset["breakdown"]}
     encoded = [r for r in ok if r.get("keyframes") is not None]
     summary = {
         "counts": {
@@ -412,17 +449,21 @@ def summarize(run: RunDir, config: dict, protocol: dict, settings: list) -> str:
 def markdown(summary: dict, ok: list[dict], settings: list, run_id: str, config: dict) -> str:
     fmt = pipeline._fmt
     counts = summary["counts"]
+    measures = tuple(config.get("measures") or pipeline.MEASURES)
+    framed = ""
+    if framing(config) == "face":
+        framed = f"Framing: face-only crop. Measures: {', '.join(measures)}. "
     lines = [
         f"# Compression experiment: {run_id}",
         "",
-        f"Dataset: {baseline.DATASET_NAMES.get(config['dataset'], config['dataset'])}. "
+        f"Dataset: {baseline.DATASET_NAMES.get(config['dataset'], config['dataset'])}. {framed}"
         f"Ladders: {', '.join(config['ladders'])}. Videos: {counts['videos']}; versions measured: "
         f"{counts['versions_measured']} ({counts['settings']} settings per video); errors: "
         f"{counts['errors']}. Encoded versions with more than one keyframe: "
         f"{summary['encoded_versions_with_more_than_one_keyframe']}.",
         "",
     ]
-    text = "\n".join(lines) + pipeline.summary_markdown(summary, ok, settings)
+    text = "\n".join(lines) + pipeline.summary_markdown(summary, ok, settings, measures)
     lines = []
     if summary["relocated_minus_fixed"]:
         lines += [
@@ -490,6 +531,12 @@ def main(argv: list[str] | None = None) -> int:
     protocol = pipeline.load_protocol(args.protocol)
     settings = experiment_settings(config, protocol)
     run = RunDir(args.results_root, args.run_id)
+    saved = run.saved_config()
+    if args.summarize_only and saved is not None:  # rebuild with the run's own config
+        config, protocol = saved["experiment"], saved["protocol"]
+        settings = experiment_settings(config, protocol)
+        print(summarize(run, config, protocol, settings), flush=True)
+        return 0
     run.init({"experiment": config, "protocol": protocol})
     if args.summarize_only:
         print(summarize(run, config, protocol, settings), flush=True)

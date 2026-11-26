@@ -3,7 +3,9 @@
 The video is a textured torso whose top edge (the shoulder line) moves up and down at the
 breathing rate, and a face ellipse whose skin color follows a blood-volume signal: a heart
 component plus an optional breathing component, both along a green-dominated color direction
-(blood absorbs green most). Everything is rendered analytically, so sub-pixel motion is exact.
+(blood absorbs green most). Optionally the face moves up and down with breathing too, as a
+head does on real recordings (phase 5, face-only video). Everything is rendered analytically,
+so sub-pixel motion is exact.
 
 `synth_landmarks` gives the pose landmarks a detector would return for this scene, so tests
 and synthetic experiments go through the same region code as real videos. `synthetic_ppg`
@@ -34,6 +36,7 @@ class SynthSpec:
     breathing_amplitude_px: float = 2.0
     heart_amplitude: float = 3.0  # peak change of the face's green channel, in 8-bit levels
     breathing_color_amplitude: float = 0.0  # same, for the breathing part of the face color
+    head_breathing_amplitude_px: float = 0.0  # vertical motion of the face with breathing
     noise_std: float = 0.0
     seed: int = 0
     face_center_frac: tuple[float, float] = (0.3, 0.5)  # (row, column) / (height, width)
@@ -65,6 +68,11 @@ def breathing_displacement(spec: SynthSpec) -> np.ndarray:
     return -spec.breathing_amplitude_px * np.sin(2 * np.pi * spec.breathing_hz * _time(spec))
 
 
+def head_displacement(spec: SynthSpec) -> np.ndarray:
+    """Downward displacement of the face in pixels for each frame, in phase with the torso."""
+    return -spec.head_breathing_amplitude_px * np.sin(2 * np.pi * spec.breathing_hz * _time(spec))
+
+
 def heart_modulation(spec: SynthSpec) -> np.ndarray:
     """Heart part of the face's green-channel change in 8-bit levels for each frame."""
     return spec.heart_amplitude * np.sin(2 * np.pi * spec.heart_hz * _time(spec))
@@ -88,6 +96,7 @@ def make_video(spec: SynthSpec) -> np.ndarray:
     pulse_dir = np.array(PULSE_RGB) / PULSE_RGB[1]  # green change = 1 level per unit
 
     displacement = breathing_displacement(spec)
+    head = head_displacement(spec)
     blood = heart_modulation(spec) + breathing_color_modulation(spec)
     frames = np.empty((spec.n_frames, spec.height, spec.width, 3), dtype=np.uint8)
     for i in range(spec.n_frames):
@@ -99,7 +108,12 @@ def make_video(spec: SynthSpec) -> np.ndarray:
         coverage = np.clip(rows - (spec.shoulder_y + d) + 0.5, 0.0, 1.0)
         gray = coverage * torso + (1.0 - coverage) * background
         frame = np.repeat(gray[:, :, None], 3, axis=2)
-        frame[face_mask] = skin + blood[i] * pulse_dir
+        if spec.head_breathing_amplitude_px:  # moving face with an anti-aliased outline
+            e = np.sqrt(((rows - face_r - head[i]) / rad_r) ** 2 + ((cols - face_c) / rad_c) ** 2)
+            alpha = np.clip((1.0 - e) * min(rad_r, rad_c) + 0.5, 0.0, 1.0)[:, :, None]
+            frame = (1.0 - alpha) * frame + alpha * (skin + blood[i] * pulse_dir)
+        else:
+            frame[face_mask] = skin + blood[i] * pulse_dir
         if spec.noise_std > 0:
             frame = frame + rng.normal(0.0, spec.noise_std, frame.shape)
         frames[i] = np.clip(np.round(frame), 0, 255).astype(np.uint8)
