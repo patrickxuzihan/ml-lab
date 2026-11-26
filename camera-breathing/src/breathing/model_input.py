@@ -3,13 +3,17 @@
 A version's decoded frames are downscaled to size x size by area averaging and resampled to a
 fixed frame rate: output frame k is the mean of the input frames whose time (index / fps)
 falls in [k, k + 1) / fps_out. The label waveforms are resampled the same way, so frames and
-labels share one time base whatever the version's frame rate. Pure numpy; no torch.
+labels share one time base whatever the version's frame rate. `pack_split` turns the
+per-video files into arrays on local disk for training. Pure numpy; no torch.
 """
 
 from __future__ import annotations
 
+import json
 import zlib
 from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 import numpy as np
 
@@ -120,3 +124,76 @@ def draw_settings(
     for pool, n in zip(pools, counts, strict=True):
         drawn += [pool[i] for i in sorted(rng.choice(len(pool), size=n, replace=False))]
     return drawn
+
+
+# ---------------------------------------------------------------------------------------
+# Training data on local disk
+
+
+def pack_split(files: list[Path], out_dir: Path, label: str, jobs: int = 1) -> dict:
+    """Unpack a split's .npz files (scripts/make_training_data.py) into uncompressed arrays in
+    out_dir, so training reads one version of one video without decompressing whole files:
+
+      frames.npy   (videos, versions, T, size, size, 3) uint8, opened as a memory map
+      labels.npy   (videos, T) float32: the label waveform `label_<label>`
+      index.json   per video: id, setting names, head_still; written last, so a complete
+                   directory is reused (same files) and an interrupted one is redone
+
+    Every video of a split must have the same number of versions and frames.
+    """
+    files = sorted(Path(f) for f in files)
+    out_dir = Path(out_dir)
+    index_path = out_dir / "index.json"
+    names = [f.name for f in files]
+    if index_path.exists():
+        index = json.loads(index_path.read_text())
+        if index["files"] == names:
+            return index
+    if not files:
+        raise ValueError(f"no .npz files for {out_dir.name}")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    index_path.unlink(missing_ok=True)
+    with np.load(files[0]) as first:
+        shape = first["frames"].shape
+    frames = np.lib.format.open_memmap(
+        out_dir / "frames.npy", mode="w+", dtype=np.uint8, shape=(len(files), *shape)
+    )
+    labels = np.zeros((len(files), shape[1]), dtype=np.float32)
+    videos: list[dict] = [{}] * len(files)
+
+    def one(i: int) -> None:
+        with np.load(files[i]) as z:
+            if z["frames"].shape != shape:
+                raise ValueError(f"{files[i].name}: frames {z['frames'].shape}, expected {shape}")
+            frames[i] = z["frames"]
+            labels[i] = z[f"label_{label}"]
+            meta = json.loads(str(z["meta"]))
+            settings = [str(s) for s in z["settings"]]
+        videos[i] = {"video": meta["video"], "settings": settings, "head_still": meta["head_still"]}
+
+    with ThreadPoolExecutor(max_workers=max(1, jobs)) as pool:
+        list(pool.map(one, range(len(files))))
+    frames.flush()
+    np.save(out_dir / "labels.npy", labels)
+    index = {"files": names, "label": label, "shape": list(shape), "videos": videos}
+    index_path.write_text(json.dumps(index))
+    return index
+
+
+def load_packed(out_dir: Path) -> tuple[np.ndarray, np.ndarray, dict]:
+    """(frames memory map, labels, index) of a packed split."""
+    out_dir = Path(out_dir)
+    index = json.loads((out_dir / "index.json").read_text())
+    frames = np.load(out_dir / "frames.npy", mmap_mode="r")
+    return frames, np.load(out_dir / "labels.npy"), index
+
+
+def version_choice(policy: str, n_versions: int, seed: int, epoch: int, video: int) -> int:
+    """The version of a training video shown in one epoch: always the source (0) for
+    "source", one drawn at random among all versions for "all". The draw depends only on
+    (seed, epoch, video), so a resumed run shows the same versions."""
+    if policy == "source":
+        return 0
+    if policy == "all":
+        return int(np.random.default_rng([seed, epoch, video]).integers(n_versions))
+    raise ValueError(f"unknown version policy {policy!r}")

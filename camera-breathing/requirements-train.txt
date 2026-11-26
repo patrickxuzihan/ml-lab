@@ -1,0 +1,6 @@
+# Phase-5 deep model only (src/breathing/deep.py, scripts/train_model.py,
+# scripts/evaluate_model.py); the core modules never import torch. Colab's GPU runtimes come
+# with torch preinstalled for their CUDA version: the lower bound keeps pip from replacing it.
+# Every run records the exact torch version and GPU in results/<run_id>/manifest.json.
+-r requirements.txt
+torch>=2.4

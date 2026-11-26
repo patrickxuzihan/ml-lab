@@ -114,40 +114,78 @@ def measure(
     error and SNR need a reference.
     """
     out, cache = [], {}
-    kwargs = rate_kwargs(protocol)
     for m in measures:
-        cfg = protocol["measurements"][m]
-        low, high = cfg["band_hz"]
         for k, window in enumerate(windows[m]):
-            ref = references[m][k]
-            record = {
-                "measure": m,
-                "window": k,
-                "t0": window[0],
-                "t1": window[1],
-                "ref_bpm": ref,
-                "est_bpm": None,
-                "error_bpm": None,
-                "snr_db": None,
-                "excluded": None,
-            }
-            out.append(record)
             segment = measurement_signal(m, traces, window, protocol, cache)
-            if segment is None:
-                record["excluded"] = "no_region"
-                continue
-            if ref is None:
-                record["excluded"] = "no_reference"
-            elif not low * 60 <= ref <= high * 60:
-                record["excluded"] = "reference_out_of_band"
-            ref_hz = None if ref is None else ref / 60
-            hz, snr = rate.analyze_window(segment, traces.fps, (low, high), ref_hz, **kwargs)
-            record["snr_db"] = snr
-            if hz is not None:
-                record["est_bpm"] = 60 * hz
-                if ref is not None:
-                    record["error_bpm"] = 60 * hz - ref
+            ref = references[m][k]
+            out.append(window_record(m, k, window, ref, segment, traces.fps, protocol))
     return out
+
+
+def window_record(
+    measure_name: str,
+    k: int,
+    window: tuple[float, float],
+    ref: float | None,
+    segment: np.ndarray | None,
+    fs: float,
+    protocol: dict,
+) -> dict:
+    """The record of one window: the protocol's estimator on the measurement's signal in that
+    window (None: the video has no region for the measurement), with the exclusion rules of
+    `measure`."""
+    low, high = protocol["measurements"][measure_name]["band_hz"]
+    record = {
+        "measure": measure_name,
+        "window": k,
+        "t0": window[0],
+        "t1": window[1],
+        "ref_bpm": ref,
+        "est_bpm": None,
+        "error_bpm": None,
+        "snr_db": None,
+        "excluded": None,
+    }
+    if segment is None:
+        record["excluded"] = "no_region"
+        return record
+    if ref is None:
+        record["excluded"] = "no_reference"
+    elif not low * 60 <= ref <= high * 60:
+        record["excluded"] = "reference_out_of_band"
+    ref_hz = None if ref is None else ref / 60
+    hz, snr = rate.analyze_window(segment, fs, (low, high), ref_hz, **rate_kwargs(protocol))
+    record["snr_db"] = snr
+    if hz is not None:
+        record["est_bpm"] = 60 * hz
+        if ref is not None:
+            record["error_bpm"] = 60 * hz - ref
+    return record
+
+
+def measure_waveform(
+    measure_name: str,
+    wave: np.ndarray,
+    fs: float,
+    windows: list[tuple[float, float]],
+    references: list[float | None],
+    protocol: dict,
+) -> list[dict]:
+    """Window records of a measurement whose signal is a whole waveform sampled at fs, e.g.
+    the output of the phase-5 deep model: the same estimator, windows and exclusion rules as
+    every other measurement."""
+    return [
+        window_record(
+            measure_name,
+            k,
+            w,
+            references[k],
+            wave[rate.window_slice(*w, fs, len(wave))],
+            fs,
+            protocol,
+        )
+        for k, w in enumerate(windows)
+    ]
 
 
 @dataclass

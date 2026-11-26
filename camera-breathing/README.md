@@ -29,4 +29,6 @@ pip install -r requirements-dev.txt && pip install -e . --no-deps
 ruff check . && ruff format --check . && pytest
 ```
 
-Data checks and experiments run on Colab through the launcher notebook [notebooks/colab_runner.ipynb](notebooks/colab_runner.ipynb); the commands for each phase are in its pull request.
+The phase-5 deep model (`src/breathing/deep.py`) is the only code that uses PyTorch: `pip install -r requirements-train.txt` adds it, and its tests are skipped without it.
+
+Data checks and experiments run on Colab through the launcher notebooks: [notebooks/colab_runner.ipynb](notebooks/colab_runner.ipynb) on a CPU runtime and, for the deep model, [notebooks/colab_gpu.ipynb](notebooks/colab_gpu.ipynb) on a GPU runtime. The commands for each phase are in its pull request.
