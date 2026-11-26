@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
@@ -22,8 +24,8 @@ from breathing.signals import Traces, extract_traces, pos
 from breathing.video_io import iter_frames, keyframe_count, write_video
 
 PROTOCOL_PATH = Path(__file__).resolve().parents[2] / "configs" / "protocol.yaml"
-MEASURES = ("M1", "M2", "M3")
-RELOCATED_SHOULDER, RELOCATED_FACE = "shoulder_relocated", "face_relocated"
+MEASURES = ("M1", "M2", "M3")  # the full-frame measurements; M4 is for face-only framing
+RELOCATED = "_relocated"  # suffix of the regions found again on a compressed version
 
 FrameSource = Callable[[], Iterator[np.ndarray]]
 
@@ -42,11 +44,12 @@ def rate_kwargs(protocol: dict) -> dict:
     }
 
 
-def analysis_windows(duration_s: float, protocol: dict) -> dict[str, list[tuple[float, float]]]:
+def analysis_windows(
+    duration_s: float, protocol: dict, measures: tuple[str, ...] = MEASURES
+) -> dict[str, list[tuple[float, float]]]:
     """Analysis windows (seconds) of each measurement for a video of this length."""
     return {
-        m: rate.windows_s(duration_s, cfg["window_s"])
-        for m, cfg in protocol["measurements"].items()
+        m: rate.windows_s(duration_s, protocol["measurements"][m]["window_s"]) for m in measures
     }
 
 
@@ -63,7 +66,7 @@ def waveform_references(
     signals.
     """
     out = {}
-    for m, cfg in protocol["measurements"].items():
+    for m, cfg in ((m, protocol["measurements"][m]) for m in windows):
         rates = reference.waveform_rates(
             waves[cfg["kind"]], fs, windows[m], tuple(cfg["band_hz"]), protocol["rate"]
         )
@@ -98,8 +101,10 @@ def measure(
     windows: dict[str, list[tuple[float, float]]],
     references: dict[str, list[float | None]],
     protocol: dict,
+    measures: tuple[str, ...] = MEASURES,
 ) -> list[dict]:
-    """One record per measurement and window: estimate, reference, error, SNR, exclusion.
+    """One record per measurement (of `measures`) and window: estimate, reference, error,
+    SNR, exclusion.
 
     A window is excluded (not counted in any metric) when the video has no region for the
     measurement, the reference is missing, or the reference lies outside the nominal band.
@@ -110,7 +115,7 @@ def measure(
     """
     out, cache = [], {}
     kwargs = rate_kwargs(protocol)
-    for m in MEASURES:
+    for m in measures:
         cfg = protocol["measurements"][m]
         low, high = cfg["band_hz"]
         for k, window in enumerate(windows[m]):
@@ -145,6 +150,55 @@ def measure(
     return out
 
 
+@dataclass
+class Version:
+    """One version of a video: its frames (decoded on each call), frame rate and size."""
+
+    frames: FrameSource
+    fps: float
+    size_hw: tuple[int, int]
+    encoded: bool = False  # False for the untouched source
+    info: dict = field(default_factory=dict)  # bytes, kbps, keyframes of an encoded version
+
+
+@contextmanager
+def encoded_version(
+    setting: Setting,
+    frames: FrameSource,
+    fps: float,
+    size_hw: tuple[int, int],
+    n_frames: int,
+    protocol: dict,
+    work_dir: str | Path,
+) -> Iterator[Version]:
+    """The version of a video for one setting, for the duration of the block.
+
+    The source is passed through. Any other setting is encoded to a temporary file in
+    work_dir, decoded on demand and deleted at the end of the block.
+    """
+    if setting.codec is None:
+        yield Version(frames, fps, size_hw)
+        return
+    height, width = size_hw
+    args, ext = compression.ffmpeg_args(setting, width, height, protocol["compression"])
+    path = Path(work_dir) / f"version_{setting.name}{ext}"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fps_out = fps / setting.decimate
+        write_video(compression.decimate(frames(), setting.decimate), path, fps_out, args)
+        out_w, out_h = compression.output_size(width, height, setting.scale)
+        n_out = compression.n_decimated(n_frames, setting.decimate)
+        size = path.stat().st_size
+        info = {
+            "bytes": size,
+            "kbps": size * 8 / (n_out / fps_out) / 1000,
+            "keyframes": keyframe_count(path) if ext == ".mp4" else None,
+        }
+        yield Version(lambda: iter_frames(path, out_w, out_h), fps_out, (out_h, out_w), True, info)
+    finally:
+        path.unlink(missing_ok=True)
+
+
 def process_version(
     setting: Setting,
     frames: FrameSource,
@@ -159,9 +213,12 @@ def process_version(
     variants: dict[str, tuple[dict, dict]] | None = None,
     relocate: Callable[[Iterator[np.ndarray], float, tuple[int, int]], tuple[dict, dict]]
     | None = None,
+    measures: tuple[str, ...] = MEASURES,
 ) -> dict:
     """Measure one version (the source or a compressed copy) of a video.
 
+    measures: the measurements to make; the regions traced follow from them (boxes holds
+    one box per region name, e.g. "shoulder", "face", "head").
     variants: optional extra measurements on the same signals, {name: (windows, references)},
     recorded under record["variants"][name]. They never change record["windows"].
     relocate: optional function (frames, fps, (height, width)) -> (boxes, info) that finds the
@@ -170,61 +227,47 @@ def process_version(
     source, whose regions are the reference.
     """
     started = time.perf_counter()
-    height, width = size_hw
     record = {"setting": setting.name, **setting.to_dict()}
-    path, relocated = None, None
-    try:
-        if setting.codec is None:
-            stream, fps_out, out_hw = frames(), fps, size_hw
-        else:
-            args, ext = compression.ffmpeg_args(setting, width, height, protocol["compression"])
-            path = Path(work_dir) / f"version_{setting.name}{ext}"
-            path.parent.mkdir(parents=True, exist_ok=True)
-            fps_out = fps / setting.decimate
-            write_video(compression.decimate(frames(), setting.decimate), path, fps_out, args)
-            out_w, out_h = compression.output_size(width, height, setting.scale)
-            out_hw = (out_h, out_w)
-            n_out = compression.n_decimated(n_frames, setting.decimate)
-            size = path.stat().st_size
-            record.update(
-                bytes=size,
-                kbps=size * 8 / (n_out / fps_out) / 1000,
-                keyframes=keyframe_count(path) if ext == ".mp4" else None,
-            )
-            stream = iter_frames(path, out_w, out_h)
-            if relocate is not None:
-                relocated = relocate(iter_frames(path, out_w, out_h), fps_out, out_hw)
+    relocated = None
+    regions = {"motion": [], "color": []}
+    for m in measures:
+        cfg = protocol["measurements"][m]
+        if cfg["region"] not in regions[cfg["signal"]]:
+            regions[cfg["signal"]].append(cfg["region"])
+    with encoded_version(setting, frames, fps, size_hw, n_frames, protocol, work_dir) as version:
+        record.update(version.info)
+        fps_out, out_hw = version.fps, version.size_hw
+        if relocate is not None and version.encoded:
+            relocated = relocate(version.frames(), fps_out, out_hw)
         scaled = {name: scale_box(box, size_hw, out_hw) for name, box in boxes.items()}
-        motion, color = {"shoulder": scaled.get("shoulder")}, {"face": scaled.get("face")}
+        motion = {r: scaled.get(r) for r in regions["motion"]}
+        color = {r: scaled.get(r) for r in regions["color"]}
         if relocated is not None:  # both sets of regions in one pass over the frames
-            motion[RELOCATED_SHOULDER] = relocated[0].get("shoulder")
-            color[RELOCATED_FACE] = relocated[0].get("face")
-        traces = extract_traces(stream, fps_out, motion, color)
-    finally:
-        if path is not None:
-            path.unlink(missing_ok=True)
+            motion.update({r + RELOCATED: relocated[0].get(r) for r in regions["motion"]})
+            color.update({r + RELOCATED: relocated[0].get(r) for r in regions["color"]})
+        traces = extract_traces(version.frames(), fps_out, motion, color)
     record.update(
         fps=fps_out,
         height=out_hw[0],
         width=out_hw[1],
         n_frames=traces.n_frames,
-        windows=measure(traces, windows, references, protocol),
+        windows=measure(traces, windows, references, protocol, measures),
     )
     if variants:
         record["variants"] = {
-            name: measure(traces, w, r, protocol) for name, (w, r) in variants.items()
+            name: measure(traces, w, r, protocol, measures) for name, (w, r) in variants.items()
         }
     if relocated is not None:
         new_boxes, info = relocated
         moved = Traces(
             fps=traces.fps,
             n_frames=traces.n_frames,
-            motion={"shoulder": traces.motion[RELOCATED_SHOULDER]},
-            rgb={"face": traces.rgb[RELOCATED_FACE]},
+            motion={r: traces.motion[r + RELOCATED] for r in regions["motion"]},
+            rgb={r: traces.rgb[r + RELOCATED] for r in regions["color"]},
         )
         record["relocated"] = {
             "regions": {"boxes": new_boxes, **info},
-            "windows": measure(moved, windows, references, protocol),
+            "windows": measure(moved, windows, references, protocol, measures),
         }
     record["seconds"] = time.perf_counter() - started
     return record
@@ -253,7 +296,12 @@ def _arrays(rows: list[dict]) -> dict[str, np.ndarray]:
     }
 
 
-def aggregate(records: list[dict], settings: list[Setting], protocol: dict) -> dict:
+def aggregate(
+    records: list[dict],
+    settings: list[Setting],
+    protocol: dict,
+    measures: tuple[str, ...] = MEASURES,
+) -> dict:
     """Metrics per setting and measurement, paired differences from the source, breakdown."""
     rows = [r for r in window_rows(records) if r["excluded"] is None]
     excluded = [r for r in window_rows(records) if r["excluded"] is not None]
@@ -268,7 +316,7 @@ def aggregate(records: list[dict], settings: list[Setting], protocol: dict) -> d
 
     per_setting, paired = {}, {}
     for name in names:
-        for m in MEASURES:
+        for m in measures:
             cell = by_key.get((name, m))
             if not cell:
                 continue
@@ -297,7 +345,7 @@ def aggregate(records: list[dict], settings: list[Setting], protocol: dict) -> d
 
     breakdown = {}
     for ladder, rung_names in compression.ladder_groups(settings).items():
-        for m in MEASURES:
+        for m in measures:
             rungs = [
                 {
                     "name": n,
@@ -338,7 +386,12 @@ def _with_ci(cell: dict, key: str, scale: float = 1.0, digits: int = 2) -> str:
     return f"{_fmt(value * scale, digits)} [{_fmt(lo * scale, digits)}, {_fmt(hi * scale, digits)}]"
 
 
-def summary_markdown(agg: dict, records: list[dict], settings: list[Setting]) -> str:
+def summary_markdown(
+    agg: dict,
+    records: list[dict],
+    settings: list[Setting],
+    measures: tuple[str, ...] = MEASURES,
+) -> str:
     """Tables of the aggregated metrics; every number comes from `agg` or `records`."""
     kbps: dict[str, list[float]] = {}
     for r in records:
@@ -356,7 +409,7 @@ def summary_markdown(agg: dict, records: list[dict], settings: list[Setting]) ->
     for s in settings:
         cells = agg["per_setting"].get(s.name, {})
         rate_text = _fmt(float(np.median(kbps[s.name])), 0) if s.name in kbps else "–"
-        for m in MEASURES:
+        for m in measures:
             if m not in cells:
                 continue
             c = cells[m]
@@ -386,7 +439,7 @@ def summary_markdown(agg: dict, records: list[dict], settings: list[Setting]) ->
         )
 
     for s in settings:
-        for m in MEASURES:
+        for m in measures:
             cell = agg["paired_vs_source"].get(s.name, {}).get(m)
             if cell:
                 lines.append(

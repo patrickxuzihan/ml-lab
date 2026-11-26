@@ -2,7 +2,7 @@
 
 Video from phones, video calls and cloud storage is almost always compressed before an algorithm sees it. This project measures breathing rate from shoulder motion and heart rate from subtle skin-color changes on the same clips, compresses the clips the way video calls do, and studies which measurement breaks first, why, and how to make breathing measurement more robust.
 
-**Status:** phase 4 (compression experiments). The protocol shared by all experiments is in [configs/protocol.yaml](configs/protocol.yaml), with the reasons in [notes/02-protocol.md](notes/02-protocol.md) (in Chinese). Results will appear here as experiments finish, and every number on this page will link to a file under `results/`.
+**Status:** phase 5 (a deep model for breathing on face-only video, trained with compressed versions). The phase-4 findings are in [notes/04-compression.md](notes/04-compression.md). The protocol shared by all experiments is in [configs/protocol.yaml](configs/protocol.yaml), with the reasons in [notes/02-protocol.md](notes/02-protocol.md) (both in Chinese). Results will appear here as experiments finish, and every number on this page will link to a file under `results/`.
 
 ## Questions
 

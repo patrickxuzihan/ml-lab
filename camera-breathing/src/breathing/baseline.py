@@ -39,10 +39,12 @@ Windows = dict[str, list[tuple[float, float]]]
 # References and windows
 
 
-def whole_windows(duration_s: float, protocol: dict) -> Windows:
+def whole_windows(
+    duration_s: float, protocol: dict, measures: tuple[str, ...] = MEASURES
+) -> Windows:
     """One window per measurement covering the whole video."""
     window = [(0.0, float(duration_s))] if duration_s > 0 else []
-    return {m: list(window) for m in protocol["measurements"]}
+    return {m: list(window) for m in measures}
 
 
 def ubfc_references(
@@ -59,7 +61,7 @@ def ubfc_references(
     """
     rate_cfg, ref_cfg = protocol["rate"], protocol["reference"]
     refs, details, cache = {}, {}, {}
-    for m, cfg in protocol["measurements"].items():
+    for m, cfg in ((m, protocol["measurements"][m]) for m in windows):
         band = tuple(cfg["band_hz"])
         key = (cfg["kind"], band, tuple(windows[m]))
         if key not in cache:
@@ -94,7 +96,7 @@ def wide_references(
 ) -> dict[str, list[float | None]]:
     """The same references with breathing fused by the wide rule (reference.fuse_by_std)."""
     out = {}
-    for m, cfg in protocol["measurements"].items():
+    for m, cfg in ((m, protocol["measurements"][m]) for m in refs):
         if cfg["kind"] == "breathing":
             out[m] = [reference.fuse_by_std(w, max_std_bpm) for w in details[m]]
         else:

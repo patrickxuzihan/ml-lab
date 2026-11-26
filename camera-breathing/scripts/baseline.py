@@ -217,6 +217,10 @@ def main(argv: list[str] | None = None) -> int:
     config = load_config(args)
     protocol = pipeline.load_protocol(args.protocol)
     run = RunDir(args.results_root, args.run_id)
+    saved = run.saved_config()
+    if args.summarize_only and saved is not None:  # rebuild with the run's own config
+        print(summarize(run, saved["experiment"], saved["protocol"]), flush=True)
+        return 0
     run.init({"experiment": config, "protocol": protocol})
     if args.summarize_only:
         print(summarize(run, config, protocol), flush=True)

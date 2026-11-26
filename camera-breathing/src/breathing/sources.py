@@ -2,7 +2,8 @@
 
 Thin adapters around the dataset readers. Each source video becomes a `Video`: a way to
 re-read its frames, its frame rate and size, a function that computes its references for any
-analysis windows, and what to record about it.
+analysis windows, and what to record about it. `locate_face` and `cropped` turn a video into
+its face-only version (phase 5).
 
 - UBFC-rPPG: `ubfc_video` copies one subject's video from the dataset folder (the Drive
   shortcut in Colab) to local disk and deletes it afterwards.
@@ -16,9 +17,9 @@ from __future__ import annotations
 import shutil
 import tarfile
 import time
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Container, Iterable, Iterator
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path, PurePosixPath
 
 import numpy as np
@@ -39,12 +40,18 @@ class Video:
     frames: Callable[[], Iterator[np.ndarray]]  # RGB frames; may be called several times
     references: Callable[[dict, int], tuple[dict, dict]]  # (windows, n_frames) -> (refs, details)
     info: dict = field(default_factory=dict)  # recorded with the source measurement
+    labels: dict = field(default_factory=dict)  # per-frame label waveforms (SCAMPS d_br, d_ppg)
+
+
+def pose_model(config: dict, work_dir: Path) -> tuple[Path, dict]:
+    """The pose model file (downloaded once into work_dir) and a record of it."""
+    model = roi.ensure_model(config["pose_model_url"], Path(work_dir) / "models")
+    return model, {"pose_model": {"file": model.name, "sha256": roi.file_sha256(model)}}
 
 
 def make_pose(config: dict, work_dir: Path):
     """MediaPipe pose estimator (model cached in work_dir) and a record of the model file."""
-    model = roi.ensure_model(config["pose_model_url"], Path(work_dir) / "models")
-    info = {"pose_model": {"file": model.name, "sha256": roi.file_sha256(model)}}
+    model, info = pose_model(config, work_dir)
     return roi.PoseEstimator(model), info
 
 
@@ -64,6 +71,34 @@ def locate_frames(
 def locate(video: Video, pose, protocol: dict) -> tuple[dict, dict, int]:
     """Measurement regions of a source video (found once, on the uncompressed frames)."""
     return locate_frames(video.frames(), video.fps, video.size_hw, pose, protocol)
+
+
+def locate_face(video: Video, pose, protocol: dict) -> tuple[roi.Box | None, dict, dict, int]:
+    """Face-only crop of a source video and the regions inside it, from pose on the
+    uncompressed frames: (crop, boxes in crop coordinates, info, frames seen)."""
+    reg = protocol["regions"]
+    height, width = video.size_hw
+    landmarks, n_frames, _ = datacheck.sample_pose(
+        video.frames(), video.fps, reg["pose_sample_fps"], pose
+    )
+    crop, boxes, info = roi.face_only_regions(
+        landmarks,
+        width,
+        height,
+        reg["visibility_threshold"],
+        reg["min_shoulder_frac"],
+        reg["face_only"],
+    )
+    return crop, boxes, info, n_frames
+
+
+def cropped(video: Video, crop: roi.Box) -> Video:
+    """The video cut to the crop box: what a camera framing only the face would record."""
+    r0, r1, c0, c1 = crop
+    frames = video.frames
+    return replace(
+        video, size_hw=(r1 - r0, c1 - c0), frames=lambda: (f[r0:r1, c0:c1] for f in frames())
+    )
 
 
 @contextmanager
@@ -146,11 +181,12 @@ def scamps_video(name: str, local: Path, config: dict, protocol: dict) -> Video:
         frames=lambda: iter(frames),
         references=references,
         info={"layout": video.layout},
+        labels=dict(video.waveforms),
     )
 
 
 def stream_members(
-    source: str, stage_dir: Path, seen: set[str], attempts: int = STREAM_ATTEMPTS
+    source: str, stage_dir: Path, seen: Container[str], attempts: int = STREAM_ATTEMPTS
 ) -> Iterator[tuple[str, Path]]:
     """Archive members not in `seen`, written to stage_dir one at a time.
 
