@@ -43,10 +43,15 @@ class Video:
     labels: dict = field(default_factory=dict)  # per-frame label waveforms (SCAMPS d_br, d_ppg)
 
 
+def pose_model(config: dict, work_dir: Path) -> tuple[Path, dict]:
+    """The pose model file (downloaded once into work_dir) and a record of it."""
+    model = roi.ensure_model(config["pose_model_url"], Path(work_dir) / "models")
+    return model, {"pose_model": {"file": model.name, "sha256": roi.file_sha256(model)}}
+
+
 def make_pose(config: dict, work_dir: Path):
     """MediaPipe pose estimator (model cached in work_dir) and a record of the model file."""
-    model = roi.ensure_model(config["pose_model_url"], Path(work_dir) / "models")
-    info = {"pose_model": {"file": model.name, "sha256": roi.file_sha256(model)}}
+    model, info = pose_model(config, work_dir)
     return roi.PoseEstimator(model), info
 
 

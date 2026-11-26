@@ -9,6 +9,12 @@ fixed frame rate (model_input.model_frames); the label waveforms (d_br, d_ppg) a
 to the same time base. Test and validation videos get fixed versions, training videos the
 source plus settings drawn at random (configs/deep_data_scamps.yaml).
 
+--jobs N processes N videos at once, one process each (the versions of a video are made one
+after another; every encoder is single-threaded, so the data do not depend on N). While they
+work, the main process downloads the next video. Each process holds one video in memory
+(about 3 GB at its peak while reading a SCAMPS file), so N = number of cores suits a
+High-RAM runtime.
+
 One .npz per video, written to --data-root/<split>/<member>.npz:
   frames         (versions, T, size, size, 3) uint8
   settings       (versions,) setting names, the source first
@@ -30,13 +36,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import multiprocessing
 import os
 import re
 import sys
 import time
 import traceback
 from collections import Counter
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
 from pathlib import Path, PurePosixPath
 
 import numpy as np
@@ -61,7 +68,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--work-dir", type=Path, default=PROJECT_DIR / "work")
     parser.add_argument("--source", help="override the dataset location in the config")
     parser.add_argument("--limit", type=int, help="stop after this many new videos")
-    parser.add_argument("--jobs", type=int, default=1, help="versions encoded at once")
+    parser.add_argument("--jobs", type=int, default=1, help="videos processed at once")
     parser.add_argument(
         "--summarize-only", action="store_true", help="only rebuild the summary from items.jsonl"
     )
@@ -114,17 +121,15 @@ def complete(done: set[str], splits: dict) -> bool:
 
 
 class Skip:
-    """Archive members to read past without writing them: finished ones and those outside
-    every split. The stream consults it member by member, so additions apply at once."""
+    """Archive members to read past without writing them: finished ones, ones being worked
+    on (if a dropped download restarts the stream) and those outside every split. The stream
+    consults it member by member, so changes apply at once."""
 
     def __init__(self, done: set[str], splits: dict):
-        self.done, self.splits = done, splits
+        self.done, self.splits, self.working = done, splits, set()
 
     def __contains__(self, name: str) -> bool:
-        return name in self.done or split_of(name, self.splits) is None
-
-    def add(self, name: str) -> None:
-        self.done.add(name)
+        return name in self.done or name in self.working or split_of(name, self.splits) is None
 
 
 def video_settings(
@@ -143,7 +148,7 @@ def video_settings(
 def write_npz(path: Path, **arrays) -> None:
     """Written under a temporary name and renamed, so a file is either whole or absent."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + ".part")
+    tmp = path.with_name(f"{path.name}.{os.getpid()}.part")
     with open(tmp, "wb") as f:
         np.savez_compressed(f, **arrays)
     os.replace(tmp, path)
@@ -158,9 +163,9 @@ def process_video(
     pose,
     data_root: Path,
     work_dir: Path,
-    jobs: int,
 ) -> dict:
-    """Model inputs of every version of one video, written to one .npz; returns the record."""
+    """Model inputs of every version of one video, written to one .npz; returns the record.
+    The versions are made one after another, in work_dir."""
     started = time.perf_counter()
     screen, still = sources.scamps_screen(name, local, config)
     video = sources.scamps_video(name, local, config, protocol)
@@ -187,8 +192,7 @@ def process_video(
             }
         return x, info
 
-    with ThreadPoolExecutor(max_workers=max(1, jobs)) as pool:
-        results = list(pool.map(one, settings))
+    results = [one(s) for s in settings]
     labels = {
         f"label_{k}": model_input.model_signal(v, video.fps, n_out, fps_out)
         for k, v in video.labels.items()
@@ -245,12 +249,76 @@ def rounded(value, digits: int = 3):
     return value
 
 
-def run_videos(config, protocol, run, pose, data_root, work_dir, jobs, limit) -> int:
+# Each worker (a separate process, or the main process with --jobs 1) has its own pose
+# estimator and settings, set once by start_worker.
+WORKER: dict = {}
+
+
+def start_worker(config: dict, protocol: dict, data_root: Path, work_dir: Path) -> None:
+    pose, _ = make_pose(config, work_dir)
+    WORKER.update(config=config, protocol=protocol, data_root=data_root, work_dir=work_dir)
+    WORKER["pose"] = pose
+
+
+def stop_worker() -> None:
+    pose = WORKER.pop("pose", None)
+    if hasattr(pose, "close"):
+        pose.close()
+
+
+def work(name: str, local: Path, split: str) -> dict:
+    """One video in a worker; failures become error records (retried on the next run)."""
+    w = WORKER
+    versions = Path(w["work_dir"]) / "versions" / PurePosixPath(name).stem
+    try:
+        return process_video(
+            name, local, split, w["config"], w["protocol"], w["pose"], w["data_root"], versions
+        )
+    except Exception as err:
+        traceback.print_exc()
+        record = {"id": name, "status": "error", "split": split, "video": name}
+        return {**record, "error": f"{type(err).__name__}: {err}"}
+    finally:
+        if versions.exists():
+            versions.rmdir()
+
+
+def run_videos(config, protocol, run, data_root, work_dir, jobs, limit) -> int:
+    """Stream the archive and process the videos of the splits, `jobs` at a time."""
     splits = config["splits"]
     done = {r["id"] for r in run.records() if r["status"] == "ok"}
     if complete(done, splits):
         return 0
     skip = Skip(done, splits)
+    held = Path(work_dir) / "stage" / "held"  # streamed videos waiting for or in a worker
+    held.mkdir(parents=True, exist_ok=True)
+    pool = None
+    if jobs > 1:  # fork: the workers inherit the code; none of them shares a pose estimator
+        context = multiprocessing.get_context("fork")
+        pool = ProcessPoolExecutor(
+            jobs, context, initializer=start_worker,
+            initargs=(config, protocol, data_root, work_dir),
+        )  # fmt: skip
+    else:
+        start_worker(config, protocol, data_root, work_dir)
+    pending: dict = {}
+
+    def finish(record: dict, path: Path) -> None:
+        path.unlink(missing_ok=True)
+        skip.working.discard(record["id"])
+        run.append(record)
+        if record["status"] == "ok":
+            done.add(record["id"])
+        took = f" in {record['seconds']:.0f} s" if "seconds" in record else ""
+        print(f"{record['id']} ({record['split']}): {record['status']}{took}", flush=True)
+
+    def collect(block: bool) -> None:
+        if not pending:
+            return
+        finished, _ = wait(pending, timeout=None if block else 0, return_when=FIRST_COMPLETED)
+        for future in finished:
+            finish(future.result(), pending.pop(future))
+
     videos = 0
     members = sources.stream_members(config["source"], work_dir / "stage", skip)
     try:
@@ -258,25 +326,29 @@ def run_videos(config, protocol, run, pose, data_root, work_dir, jobs, limit) ->
             if limit is not None and videos >= limit:
                 break
             split = split_of(name, splits)
-            try:
-                record = process_video(
-                    name, local, split, config, protocol, pose, data_root,
-                    work_dir / "versions", jobs,
-                )  # fmt: skip
-            except Exception as err:  # recorded and retried on the next run
-                traceback.print_exc()
-                record = {"id": name, "status": "error", "split": split, "video": name}
-                record["error"] = f"{type(err).__name__}: {err}"
-            run.append(record)
+            path = held / local.name
+            os.replace(local, path)  # keep it after the stream moves on
+            skip.working.add(name)
             videos += 1
-            took = f" in {record['seconds']:.0f} s" if "seconds" in record else ""
-            print(f"{name} ({split}): {record['status']}{took}", flush=True)
-            if record["status"] == "ok":
-                skip.add(name)
-                if complete(done, splits):
-                    break  # the archive is in member order: nothing later is needed
+            if pool is None:
+                finish(work(name, path, split), path)
+            else:
+                while len(pending) >= jobs:  # every worker busy: wait for one
+                    collect(block=True)
+                pending[pool.submit(work, name, path, split)] = path
+                collect(block=False)
+            if complete(done, splits):
+                break  # the archive is in member order: nothing later is needed
+        while pending:
+            collect(block=True)
     finally:
         members.close()
+        if pool is not None:
+            pool.shutdown(cancel_futures=True)
+        else:
+            stop_worker()
+        for path in pending.values():
+            path.unlink(missing_ok=True)
     return videos
 
 
@@ -378,16 +450,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.summarize_only:
         print(summarize(run, config), flush=True)
         return 0
-    pose, pose_info = make_pose(config, args.work_dir)
+    _, pose_info = sources.pose_model(config, args.work_dir)  # downloaded once, before workers
     extra = {**pose_info, "argv": sys.argv[1:], "jobs": args.jobs}
     run.add_session(environment_snapshot(PROJECT_DIR, extra))
     try:
         videos = run_videos(
-            config, protocol, run, pose, args.data_root, args.work_dir, args.jobs, args.limit
+            config, protocol, run, args.data_root, args.work_dir, args.jobs, args.limit
         )
     finally:
-        if hasattr(pose, "close"):
-            pose.close()
         summarize(run, config)
     print(f"worked on {videos} video(s); data in {args.data_root}, run in {run.path}", flush=True)
     return 0
