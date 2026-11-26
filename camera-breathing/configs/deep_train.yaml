@@ -1,0 +1,28 @@
+# Phase-5 deep model (scripts/train_model.py, scripts/evaluate_model.py). The model inputs come
+# from scripts/make_training_data.py (configs/deep_data_scamps.yaml): one .npz per video in the
+# sub-directories `splits` of --data-root.
+label: breathing  # label_breathing in the .npz files: SCAMPS d_br
+# Rates are estimated with this measurement's band, windows and tolerance (configs/protocol.yaml):
+# the model is compared with M2 and M4 by the same estimator.
+measure: M4
+splits: {train: train, validation: validation, test: test}
+input:  # must match configs/deep_data_scamps.yaml model_input (checked when training starts)
+  size: 64
+  fps: 10.0
+model:
+  dilations: [1, 2, 4, 8, 16]  # temporal receptive field 1 + 4 * 31 = 125 samples (12.5 s)
+  kernel: 5
+train:
+  epochs: 30
+  batch_size: 16
+  weight_decay: 1.0e-4
+# A: trained on the uncompressed version of each video only. B: in every epoch, one version
+# drawn at random among all of a video's versions (the source and the compressed ones).
+variants: {A: source, B: all}
+# Stage "tune": every width and learning rate with seed 0, for each variant. The lowest
+# validation loss picks each variant's width and learning rate for stage "final", which trains
+# them with every seed. Both variants get the same grid and the same rule.
+tuning:
+  width: [8, 16, 32]
+  lr: [3.0e-4, 1.0e-3]
+seeds: [0, 1, 2, 3, 4]

@@ -381,3 +381,43 @@ def test_training_data_splits_versions_and_resume(tmp_path, monkeypatch):
     # Complete: the archive is not opened again.
     archive.unlink()
     assert data_script.main(argv + ["--jobs", "2"]) == 0
+
+
+def test_pack_split_and_version_choice(tmp_path):
+    rng = np.random.default_rng(0)
+    for i in range(3):
+        meta = {"video": f"scamps_videos/P{i:06d}.mat", "head_still": i != 1}
+        np.savez_compressed(
+            tmp_path / f"P{i:06d}.npz",
+            frames=rng.integers(0, 255, (2, 5, 4, 4, 3), dtype=np.uint8),
+            settings=np.array(["source", "x264_crf23"]),
+            kbps=np.array([np.nan, 10.0]),
+            label_breathing=np.full(5, float(i), dtype=np.float32),
+            meta=np.array(json.dumps(meta)),
+        )
+    files = sorted(tmp_path.glob("*.npz"))
+    index = model_input.pack_split(files, tmp_path / "packed", "breathing", jobs=2)
+    frames, labels, loaded = model_input.load_packed(tmp_path / "packed")
+    assert frames.shape == (3, 2, 5, 4, 4, 3) and loaded == index
+    with np.load(files[2]) as z:
+        np.testing.assert_array_equal(frames[2], z["frames"])
+    np.testing.assert_array_equal(labels[:, 0], [0, 1, 2])
+    assert [v["head_still"] for v in index["videos"]] == [True, False, True]
+    before = (tmp_path / "packed" / "frames.npy").stat().st_mtime_ns
+    model_input.pack_split(files, tmp_path / "packed", "breathing")  # same files: reused
+    assert (tmp_path / "packed" / "frames.npy").stat().st_mtime_ns == before
+
+    assert {model_input.version_choice("source", 9, 0, e, 3) for e in range(20)} == {0}
+    drawn = [model_input.version_choice("all", 9, 0, e, 3) for e in range(50)]
+    assert set(drawn) == set(range(9))
+    assert drawn == [model_input.version_choice("all", 9, 0, e, 3) for e in range(50)]
+
+
+def test_a_waveform_goes_through_the_protocol_estimator():
+    fs, n = 10.0, 200
+    wave = np.sin(2 * np.pi * 0.3 * np.arange(n) / fs)
+    (w,) = pipeline.measure_waveform("M4", wave, fs, [(0.0, 20.0)], [18.0], PROTOCOL)
+    assert w["measure"] == "M4" and w["excluded"] is None
+    assert w["est_bpm"] == pytest.approx(18.0, abs=0.2)
+    (w,) = pipeline.measure_waveform("M4", wave, fs, [(0.0, 20.0)], [None], PROTOCOL)
+    assert w["excluded"] == "no_reference" and w["est_bpm"] == pytest.approx(18.0, abs=0.2)
