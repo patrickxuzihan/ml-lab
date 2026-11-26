@@ -2,6 +2,7 @@
 the face-only classic experiment and the training-data script end to end."""
 
 import json
+import sys
 from dataclasses import replace
 
 import numpy as np
@@ -283,6 +284,9 @@ def face_archive(tmp_path, n_members):
 def test_training_data_splits_versions_and_resume(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setattr(data_script, "make_pose", counting_pose(FACE_SPEC, calls))
+    # Worker processes look up the worker function by module name (from the command line
+    # the script is __main__).
+    monkeypatch.setitem(sys.modules, "make_training_data", data_script)
     archive, frames = face_archive(tmp_path, 5)
     config = {
         "dataset_config": str(PROJECT_DIR / "configs" / "baseline_scamps.yaml"),
@@ -295,7 +299,9 @@ def test_training_data_splits_versions_and_resume(tmp_path, monkeypatch):
         "fixed_ladders": ["crf", "bitrate"],
         "augmentation": {"seed": 0, "groups": [{"ladders": ["crf", "bitrate"], "n": 2},
                                                {"ladders": ["allocation"], "n": 1}]},
+        "pose_model_url": (tmp_path / "pose.task").as_uri(),  # recorded only; pose is faked
     }  # fmt: skip
+    (tmp_path / "pose.task").write_bytes(b"not a model")
     config_path = tmp_path / "data.yaml"
     config_path.write_text(yaml.safe_dump(config))
     run_id = "20261126_scamps_deep-data_s0"
@@ -303,8 +309,7 @@ def test_training_data_splits_versions_and_resume(tmp_path, monkeypatch):
     argv = ["--config", str(config_path), "--run-id", run_id, "--source", str(archive)]
     argv += ["--protocol", str(small_protocol(tmp_path)), "--data-root", str(data_root)]
     argv += ["--results-root", str(tmp_path / "results"), "--work-dir", str(tmp_path / "work")]
-    argv += ["--jobs", "2"]
-    assert data_script.main(argv) == 0
+    assert data_script.main(argv + ["--jobs", "2"]) == 0  # two worker processes
 
     run = tmp_path / "results" / run_id
     records = {r["id"]: r for r in map(json.loads, (run / "items.jsonl").read_text().splitlines())}
@@ -348,18 +353,27 @@ def test_training_data_splits_versions_and_resume(tmp_path, monkeypatch):
         metrics["splits"]["train"]["videos"] == 2 and metrics["splits"]["train"]["head_still"] == 1
     )
     assert sum(metrics["random_versions_drawn"].values()) == 6
-    assert list((tmp_path / "work" / "stage").iterdir()) == []
+    assert list((tmp_path / "work" / "stage" / "held").iterdir()) == []
     assert list((tmp_path / "work" / "versions").iterdir()) == []
+    manifest = json.loads((run / "manifest.json").read_text())
+    assert manifest["sessions"][0]["pose_model"]["file"] == "pose.task"
 
-    # Resume: a lost video is made again, the others are skipped without pose.
+    # Resume in the main process (--jobs 1): a lost video is made again, the others are
+    # skipped without pose, and the data are the same as from the worker processes.
     lines = [x for x in (run / "items.jsonl").read_text().splitlines()
              if json.loads(x)["id"] != "scamps_videos/P000005.mat"]  # fmt: skip
     (run / "items.jsonl").write_text("\n".join(lines) + "\n")
-    (data_root / "train" / "P000005.npz").unlink()
+    lost = data_root / "train" / "P000005.npz"
+    with np.load(lost) as npz:
+        before = {k: npz[k] for k in npz.files}
+    lost.unlink()
     calls.clear()
-    assert data_script.main(argv) == 0
+    assert data_script.main(argv + ["--jobs", "1"]) == 0
     assert len(calls) == 40  # one video: 600 frames at 30 fps, pose on every 15th
-    assert (data_root / "train" / "P000005.npz").exists()
+    with np.load(lost) as npz:
+        assert sorted(npz.files) == sorted(before)
+        for k in npz.files:
+            np.testing.assert_array_equal(npz[k], before[k], err_msg=k)
     # Complete: the archive is not opened again.
     archive.unlink()
-    assert data_script.main(argv) == 0
+    assert data_script.main(argv + ["--jobs", "2"]) == 0
