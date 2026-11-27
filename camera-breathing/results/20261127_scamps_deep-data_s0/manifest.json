@@ -46,6 +46,140 @@
         "2"
       ],
       "jobs": 8
+    },
+    {
+      "started_utc": "2026-11-26T10:15:06+00:00",
+      "git": {
+        "commit": "2d5bc56ae03e5d4d1a36f5a696f503d6cf19d1d6",
+        "dirty": false
+      },
+      "python": "3.13.18",
+      "packages": {
+        "numpy": "2.4.6",
+        "scipy": "1.16.3",
+        "h5py": "3.14.0",
+        "PyYAML": "6.0.3",
+        "mediapipe": "1.2.3",
+        "opencv-contrib-python": "4.14.0.94"
+      },
+      "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+      "ffprobe": "ffprobe version 6.1.1-3ubuntu5 Copyright (c) 2007-2023 the FFmpeg developers",
+      "hardware": {
+        "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "cpu_count": 8,
+        "memory_bytes": 54750392320,
+        "gpus": []
+      },
+      "pose_model": {
+        "file": "pose_landmarker_full.task",
+        "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+      },
+      "argv": [
+        "--config",
+        "configs/deep_data_scamps.yaml",
+        "--run-id",
+        "20261127_scamps_deep-data_s0",
+        "--data-root",
+        "/content/drive/MyDrive/camera-breathing/deep_data",
+        "--results-root",
+        "/content/drive/MyDrive/camera-breathing/results",
+        "--work-dir",
+        "/content/work",
+        "--jobs",
+        "8",
+        "--limit",
+        "2"
+      ],
+      "jobs": 8
+    },
+    {
+      "started_utc": "2026-11-26T13:39:28+00:00",
+      "git": {
+        "commit": "2c72fc815cfc08f71c96bdc5f62b96c9a9f393c8",
+        "dirty": false
+      },
+      "python": "3.13.18",
+      "packages": {
+        "numpy": "2.4.6",
+        "scipy": "1.16.3",
+        "h5py": "3.14.0",
+        "PyYAML": "6.0.3",
+        "mediapipe": "1.2.3",
+        "opencv-contrib-python": "4.14.0.94"
+      },
+      "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+      "ffprobe": "ffprobe version 6.1.1-3ubuntu5 Copyright (c) 2007-2023 the FFmpeg developers",
+      "hardware": {
+        "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "cpu_count": 8,
+        "memory_bytes": 54750392320,
+        "gpus": []
+      },
+      "pose_model": {
+        "file": "pose_landmarker_full.task",
+        "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+      },
+      "argv": [
+        "--config",
+        "configs/deep_data_scamps.yaml",
+        "--run-id",
+        "20261127_scamps_deep-data_s0",
+        "--data-root",
+        "/content/drive/MyDrive/camera-breathing/deep_data",
+        "--results-root",
+        "/content/drive/MyDrive/camera-breathing/results",
+        "--work-dir",
+        "/content/work",
+        "--jobs",
+        "8"
+      ],
+      "jobs": 8
+    },
+    {
+      "started_utc": "2026-11-27T06:02:28+00:00",
+      "git": {
+        "commit": "2c72fc815cfc08f71c96bdc5f62b96c9a9f393c8",
+        "dirty": false
+      },
+      "python": "3.13.18",
+      "packages": {
+        "numpy": "2.4.6",
+        "scipy": "1.16.3",
+        "h5py": "3.14.0",
+        "PyYAML": "6.0.3",
+        "mediapipe": "1.2.3",
+        "opencv-contrib-python": "4.14.0.94"
+      },
+      "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+      "ffprobe": "ffprobe version 6.1.1-3ubuntu5 Copyright (c) 2007-2023 the FFmpeg developers",
+      "hardware": {
+        "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+        "machine": "x86_64",
+        "cpu_count": 8,
+        "memory_bytes": 54750392320,
+        "gpus": []
+      },
+      "pose_model": {
+        "file": "pose_landmarker_full.task",
+        "sha256": "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1"
+      },
+      "argv": [
+        "--config",
+        "configs/deep_data_scamps.yaml",
+        "--run-id",
+        "20261127_scamps_deep-data_s0",
+        "--data-root",
+        "/content/drive/MyDrive/camera-breathing/deep_data",
+        "--results-root",
+        "/content/drive/MyDrive/camera-breathing/results",
+        "--work-dir",
+        "/content/work",
+        "--jobs",
+        "8"
+      ],
+      "jobs": 8
     }
   ]
 }
