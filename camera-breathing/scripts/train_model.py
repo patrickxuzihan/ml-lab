@@ -7,7 +7,7 @@
 
   python scripts/train_model.py --config configs/deep_train.yaml --stage tune \
       --run-id 20261128_scamps_deep-tune_s0 \
-      --data-root /content/drive/MyDrive/camera-breathing/deep_data \
+      --data-root /content/deep_data \
       --checkpoint-root /content/drive/MyDrive/camera-breathing/checkpoints \
       --results-root /content/drive/MyDrive/camera-breathing/results --cache-dir /content/deep_cache
 
@@ -15,9 +15,11 @@
       --run-id 20261128_scamps_deep-final_s0
 
 The training and validation splits are unpacked once per session into --cache-dir (local
-disk; model_input.pack_split). Checkpoints go to --checkpoint-root/<run_id>/<model>/ (Drive,
-never git). One record per trained model in results/<run_id>/items.jsonl: a run resumes at
-the next unfinished model, and a model at its next epoch.
+disk; model_input.pack_split), from a --data-root on local disk: copy the model inputs from
+Drive first (notebooks/colab_gpu.ipynb does), since many parallel reads from Drive are slow.
+Checkpoints go to --checkpoint-root/<run_id>/<model>/ (Drive, never git). One record per
+trained model in results/<run_id>/items.jsonl: a run resumes at the next unfinished model,
+and a model at its next epoch.
 """
 
 from __future__ import annotations
@@ -104,9 +106,12 @@ def pack_splits(config: dict, data_root: Path, cache_dir: Path) -> dict[str, Pat
     for split in ("train", "validation"):
         files = sorted((data_root / config["splits"][split]).glob("*.npz"))
         started = time.perf_counter()
+        if not files:
+            raise SystemExit(f"no .npz files in {data_root / config['splits'][split]}")
         index = model_input.pack_split(
-            files, cache_dir / split, config["label"], jobs=os.cpu_count() or 1
-        )
+            files, cache_dir / split, config["label"], jobs=min(4, os.cpu_count() or 1),
+            log=lambda line: print(line, flush=True),
+        )  # fmt: skip
         with np.load(files[0]) as first:
             made = json.loads(str(first["meta"]))["model_input"]
         wanted = config["input"]

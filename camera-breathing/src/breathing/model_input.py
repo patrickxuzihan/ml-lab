@@ -10,8 +10,10 @@ per-video files into arrays on local disk for training. Pure numpy; no torch.
 from __future__ import annotations
 
 import json
+import shutil
+import time
 import zlib
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -130,7 +132,13 @@ def draw_settings(
 # Training data on local disk
 
 
-def pack_split(files: list[Path], out_dir: Path, label: str, jobs: int = 1) -> dict:
+def pack_split(
+    files: list[Path],
+    out_dir: Path,
+    label: str,
+    jobs: int = 1,
+    log: Callable[[str], None] | None = None,
+) -> dict:
     """Unpack a split's .npz files (scripts/make_training_data.py) into uncompressed arrays in
     out_dir, so training reads one version of one video without decompressing whole files:
 
@@ -139,7 +147,10 @@ def pack_split(files: list[Path], out_dir: Path, label: str, jobs: int = 1) -> d
       index.json   per video: id, setting names, head_still; written last, so a complete
                    directory is reused (same files) and an interrupted one is redone
 
-    Every video of a split must have the same number of versions and frames.
+    Every video of a split must have the same number of versions and frames. The free space
+    on out_dir's disk is checked first; log (if given) receives a progress line about every
+    5% of the files. Read the files from local disk: many parallel reads from a network
+    drive can be very slow.
     """
     files = sorted(Path(f) for f in files)
     out_dir = Path(out_dir)
@@ -155,6 +166,14 @@ def pack_split(files: list[Path], out_dir: Path, label: str, jobs: int = 1) -> d
     index_path.unlink(missing_ok=True)
     with np.load(files[0]) as first:
         shape = first["frames"].shape
+    target = out_dir / "frames.npy"
+    needed = len(files) * int(np.prod(shape))
+    free = shutil.disk_usage(out_dir).free + (target.stat().st_size if target.exists() else 0)
+    if free < needed:
+        raise ValueError(
+            f"{out_dir.name}: unpacking needs {needed / 1e9:.1f} GB on {out_dir}, "
+            f"{free / 1e9:.1f} GB free"
+        )
     frames = np.lib.format.open_memmap(
         out_dir / "frames.npy", mode="w+", dtype=np.uint8, shape=(len(files), *shape)
     )
@@ -171,8 +190,12 @@ def pack_split(files: list[Path], out_dir: Path, label: str, jobs: int = 1) -> d
             settings = [str(s) for s in z["settings"]]
         videos[i] = {"video": meta["video"], "settings": settings, "head_still": meta["head_still"]}
 
+    started, step = time.perf_counter(), max(1, len(files) // 20)
     with ThreadPoolExecutor(max_workers=max(1, jobs)) as pool:
-        list(pool.map(one, range(len(files))))
+        for done, _ in enumerate(pool.map(one, range(len(files))), start=1):
+            if log is not None and (done % step == 0 or done == len(files)):
+                log(f"{out_dir.name}: {done}/{len(files)} videos unpacked "
+                    f"in {time.perf_counter() - started:.0f} s")  # fmt: skip
     frames.flush()
     np.save(out_dir / "labels.npy", labels)
     index = {"files": names, "label": label, "shape": list(shape), "videos": videos}

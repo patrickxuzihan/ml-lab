@@ -396,7 +396,9 @@ def test_pack_split_and_version_choice(tmp_path):
             meta=np.array(json.dumps(meta)),
         )
     files = sorted(tmp_path.glob("*.npz"))
-    index = model_input.pack_split(files, tmp_path / "packed", "breathing", jobs=2)
+    lines = []
+    index = model_input.pack_split(files, tmp_path / "packed", "breathing", 2, lines.append)
+    assert lines[-1].startswith("packed: 3/3 videos unpacked in")
     frames, labels, loaded = model_input.load_packed(tmp_path / "packed")
     assert frames.shape == (3, 2, 5, 4, 4, 3) and loaded == index
     with np.load(files[2]) as z:
@@ -421,3 +423,16 @@ def test_a_waveform_goes_through_the_protocol_estimator():
     assert w["est_bpm"] == pytest.approx(18.0, abs=0.2)
     (w,) = pipeline.measure_waveform("M4", wave, fs, [(0.0, 20.0)], [None], PROTOCOL)
     assert w["excluded"] == "no_reference" and w["est_bpm"] == pytest.approx(18.0, abs=0.2)
+
+
+def test_pack_split_checks_the_free_space_first(tmp_path, monkeypatch):
+    meta = {"video": "scamps_videos/P000001.mat", "head_still": True}
+    np.savez_compressed(tmp_path / "P000001.npz", frames=np.zeros((2, 5, 4, 4, 3), np.uint8),
+                        settings=np.array(["source", "x264_crf23"]), kbps=np.zeros(2),
+                        label_breathing=np.zeros(5, np.float32),
+                        meta=np.array(json.dumps(meta)))  # fmt: skip
+    usage = model_input.shutil.disk_usage(tmp_path)
+    monkeypatch.setattr(model_input.shutil, "disk_usage", lambda _: usage._replace(free=100))
+    with pytest.raises(ValueError, match="needs 0.0 GB"):
+        model_input.pack_split([tmp_path / "P000001.npz"], tmp_path / "packed", "breathing")
+    assert not (tmp_path / "packed" / "frames.npy").exists()
